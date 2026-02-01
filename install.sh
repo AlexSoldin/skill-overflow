@@ -5,6 +5,12 @@ set -e
 
 REPO_DIR="$(cd "$(dirname "$0")" && pwd)"
 SKILLS_DIR="$HOME/.claude/skills"
+FORCE=false
+
+# Parse arguments
+if [ "$1" = "--force" ] || [ "$1" = "-f" ]; then
+    FORCE=true
+fi
 
 # Create skills directory if it doesn't exist
 mkdir -p "$SKILLS_DIR"
@@ -14,12 +20,16 @@ for skill in "$REPO_DIR/skills/"*/; do
     skill_name=$(basename "$skill")
     target="$SKILLS_DIR/$skill_name"
 
-    # Remove existing symlink or directory
+    # Check if target already exists
     if [ -L "$target" ]; then
-        rm "$target"
-    elif [ -d "$target" ]; then
-        echo "Warning: $target exists and is not a symlink. Skipping."
-        echo "  Remove it manually if you want to link: rm -rf $target"
+        if [ "$FORCE" = true ]; then
+            rm "$target"
+        else
+            echo "Skipping $skill_name (symlink exists, use --force to update)"
+            continue
+        fi
+    elif [ -e "$target" ]; then
+        echo "Skipping $skill_name (directory exists at $target)"
         continue
     fi
 
