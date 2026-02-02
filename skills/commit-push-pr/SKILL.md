@@ -2,6 +2,7 @@
 name: commit-push-pr
 description: Commit staged changes, push to remote, and create a pull request. Never pushes directly to main - always creates a new branch if on main.
 allowed-tools: Bash, Read, Grep
+targets: [claude, codex]
 ---
 
 # Commit, push, and create PR
@@ -63,7 +64,7 @@ git commit -m "$(cat <<'EOF'
 
 <optional body>
 
-Co-Authored-By: Claude Opus 4.5 <noreply@anthropic.com>
+Co-Authored-By: AI Assistant <noreply@local>
 EOF
 )"
 ```
@@ -88,7 +89,7 @@ gh pr create --title "<type>(<scope>): <description>" --body "$(cat <<'EOF'
 ## Test plan
 - [ ] Steps to test the changes
 
-🤖 Generated with [Claude Code](https://claude.com/claude-code)
+Generated with an AI assistant
 EOF
 )"
 ```

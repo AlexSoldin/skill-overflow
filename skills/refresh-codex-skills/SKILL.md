@@ -1,18 +1,18 @@
 ---
-name: refresh-claude-skills
-description: Update Claude skills from the claude-skills repository by pulling latest changes and running the install script.
+name: refresh-codex-skills
+description: Update Codex skills from the claude-skills repository by pulling latest changes and running the install script.
 allowed-tools: Bash, Read
-targets: [claude]
+targets: [codex]
 ---
 
-# Refresh Claude Skills
+# Refresh Codex Skills
 
-Update your Claude Code skills from the [claude-skills repository](https://github.com/AlexSoldin/claude-skills) by pulling the latest changes and running the install script.
+Update your Codex skills from the [claude-skills repository](https://github.com/AlexSoldin/claude-skills) by pulling the latest changes and running the install script.
 
 ## Usage
 
 ```
-/refresh-claude-skills
+/refresh-codex-skills
 ```
 
 ## Instructions
@@ -21,11 +21,11 @@ When invoked, follow these steps:
 
 ### 1. Find and navigate to the repository
 
-Locate the claude-skills repository by following a symlink from `~/.claude/skills`:
+Locate the claude-skills repository by following a symlink from `~/.codex/skills`:
 
 ```bash
-# Find the repo by following the refresh-claude-skills symlink
-SKILL_LINK=$(readlink ~/.claude/skills/refresh-claude-skills)
+# Find the repo by following the refresh-codex-skills symlink
+SKILL_LINK=$(readlink ~/.codex/skills/refresh-codex-skills)
 REPO_DIR=$(dirname "$(dirname "$SKILL_LINK")")
 echo "Found repository at: $REPO_DIR"
 cd "$REPO_DIR"
@@ -42,8 +42,8 @@ echo "=== Current skills in repository ==="
 ls -1 skills/
 
 echo ""
-echo "=== Current symlinks in ~/.claude/skills ==="
-ls -la ~/.claude/skills/ | grep -E "^l"
+echo "=== Current symlinks in ~/.codex/skills ==="
+ls -la ~/.codex/skills/ | grep -E "^l"
 
 echo ""
 echo "=== Git status ==="
@@ -68,7 +68,7 @@ Report what changed (if anything):
 Run the install script with the `--force` flag to update existing symlinks:
 
 ```bash
-./install.sh --force
+./install.sh --force --codex
 ```
 
 ### 5. Verify installation
@@ -79,7 +79,7 @@ Confirm the skills are properly linked:
 echo "=== Installed skills ==="
 for skill in skills/*/; do
     skill_name=$(basename "$skill")
-    target="$HOME/.claude/skills/$skill_name"
+    target="$HOME/.codex/skills/$skill_name"
     if [ -L "$target" ]; then
         echo "✓ $skill_name"
     else
@@ -97,6 +97,6 @@ Provide a summary to the user:
 
 ## Notes
 
-- This skill finds the repository by following the symlink from `~/.claude/skills/refresh-claude-skills`
+- This skill finds the repository by following the symlink from `~/.codex/skills/refresh-codex-skills`
 - Use `--force` to ensure symlinks are updated even if they already exist
 - Existing user skills (non-symlinked directories) are never overwritten

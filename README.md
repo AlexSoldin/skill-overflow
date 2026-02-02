@@ -1,25 +1,26 @@
-# Claude Skills & Cursor Rules
+# Claude, Codex, and Cursor Skills/Rules
 
-A collection of custom skills for [Claude Code](https://claude.com/claude-code) and rules for [Cursor](https://cursor.com).
+A collection of custom skills for [Claude Code](https://claude.com/claude-code), [Codex](https://openai.com/codex), and rules for [Cursor](https://cursor.com).
 
 ## What's the Difference?
 
-| Aspect | Claude Skills | Cursor Rules |
-|--------|---------------|--------------|
-| Location | `~/.claude/skills/` | `~/.cursor/rules/` |
-| Format | `SKILL.md` with YAML frontmatter | `.mdc` markdown files |
-| Invocation | Slash commands (`/skill-name`) | Auto-applied or manually referenced |
-| Structure | Directory per skill | Single file per rule |
+| Aspect | Claude Skills | Codex Skills | Cursor Rules |
+|--------|---------------|--------------|--------------|
+| Location | `~/.claude/skills/` | `$CODEX_HOME/skills/` (defaults to `~/.codex/skills/`) | `~/.cursor/rules/` |
+| Format | `SKILL.md` with YAML frontmatter | `SKILL.md` with YAML frontmatter | `.mdc` markdown files |
+| Invocation | Slash commands (`/skill-name`) | Slash commands (`/skill-name`) | Auto-applied or manually referenced |
+| Structure | Directory per skill | Directory per skill | Single file per rule |
 
-**Skills** are explicitly invoked via slash commands in Claude Code. **Rules** provide contextual guidance that Cursor can apply automatically or that you reference in prompts.
+**Skills** are explicitly invoked via slash commands in Claude Code and Codex. **Rules** provide contextual guidance that Cursor can apply automatically or that you reference in prompts.
 
 ## Available Skills & Rules
 
-| Name | Description | Claude | Cursor |
-|------|-------------|--------|--------|
-| commit-push-pr | Commit changes, push to remote, and create a PR. Enforces branch protection. | ✓ | ✓ |
-| refresh-claude-skills | Pull latest changes and reinstall Claude skills. | ✓ | — |
-| refresh-cursor-rules | Pull latest changes and reinstall Cursor rules. | — | ✓ |
+| Name | Description | Claude | Codex | Cursor |
+|------|-------------|--------|-------|--------|
+| commit-push-pr | Commit changes, push to remote, and create a PR. Enforces branch protection. | ✓ | ✓ | ✓ |
+| refresh-claude-skills | Pull latest changes and reinstall Claude skills. | ✓ | — | — |
+| refresh-codex-skills | Pull latest changes and reinstall Codex skills. | — | ✓ | — |
+| refresh-cursor-rules | Pull latest changes and reinstall Cursor rules. | — | — | ✓ |
 
 ## Installation
 
@@ -35,9 +36,11 @@ You'll see:
 ```
 Install for which tool?
 1) Claude only
-2) Cursor only
-3) Both (Recommended)
-Choice [3]:
+2) Codex only
+3) Cursor only
+4) Claude + Cursor
+5) All (Recommended)
+Choice [5]:
 ```
 
 ### Non-Interactive Install
@@ -46,14 +49,41 @@ Use flags to skip the prompt:
 
 ```bash
 ./install.sh --claude    # Install Claude skills only
+./install.sh --codex     # Install Codex skills only
 ./install.sh --cursor    # Install Cursor rules only
-./install.sh --both      # Install both (same as default)
+./install.sh --all       # Install Claude + Codex + Cursor (same as default)
+```
+
+### Flags
+
+```bash
+--claude    Install Claude skills only
+--codex     Install Codex skills only
+--cursor    Install Cursor rules only
+--all       Install Claude + Codex + Cursor (default when no tool is specified)
+--force     Replace existing symlinks (never overwrites real directories/files)
+--prune     Remove stale or non-targeted symlinks that point into this repo
+--list      Show what would be installed (no changes)
 ```
 
 Add `--force` to update existing symlinks:
 
 ```bash
-./install.sh --force --both
+./install.sh --force --claude --cursor
+```
+
+Add `--prune` to remove non-targeted or stale symlinks:
+
+```bash
+./install.sh --prune --codex
+./install.sh --prune --all
+```
+
+List what would be installed:
+
+```bash
+./install.sh --list --all
+./install.sh --list --codex
 ```
 
 ### Manual Install
@@ -61,6 +91,11 @@ Add `--force` to update existing symlinks:
 **Claude skills:**
 ```bash
 ln -sf /path/to/claude-skills/skills/commit-push-pr ~/.claude/skills/commit-push-pr
+```
+
+**Codex skills:**
+```bash
+ln -sf /path/to/claude-skills/skills/commit-push-pr ~/.codex/skills/commit-push-pr
 ```
 
 **Cursor rules:**
@@ -77,6 +112,15 @@ Invoke skills using slash commands:
 ```
 /commit-push-pr
 /refresh-claude-skills
+```
+
+### Codex
+
+Invoke skills using slash commands:
+
+```
+/commit-push-pr
+/refresh-codex-skills
 ```
 
 ### Cursor
@@ -111,6 +155,29 @@ Rules in `~/.cursor/rules/` can be:
    ```
 
 3. Run `./install.sh --claude` to create the symlink
+
+### Codex Skill
+
+1. Create a directory under `skills/`:
+   ```bash
+   mkdir skills/my-new-skill
+   ```
+
+2. Create a `SKILL.md` file with YAML frontmatter, including `targets`:
+   ```markdown
+   ---
+   name: my-new-skill
+   description: Brief description of what the skill does
+   allowed-tools: Bash, Read, Write
+   targets: [codex]
+   ---
+
+   # My New Skill
+
+   Instructions for Codex to follow when this skill is invoked.
+   ```
+
+3. Run `./install.sh --codex` to create the symlink
 
 ### Cursor Rule
 
