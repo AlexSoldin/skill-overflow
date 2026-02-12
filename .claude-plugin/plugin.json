@@ -1,0 +1,11 @@
+{
+  "name": "skill-overflow",
+  "version": "1.0.0",
+  "description": "Shared team skills for commit workflows, pre-commit management, and plugin updates.",
+  "author": {
+    "name": "Alex Soldin"
+  },
+  "repository": "https://github.com/AlexSoldin/skill-overflow",
+  "license": "MIT",
+  "keywords": ["skills", "git", "workflow", "pre-commit", "team"]
+}

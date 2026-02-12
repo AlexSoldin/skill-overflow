@@ -1,8 +1,6 @@
 ---
 name: commit-push-pr
 description: Commit staged changes, push to remote, and create a pull request. Never pushes directly to main - always creates a new branch if on main.
-allowed-tools: Bash, Read, Grep
-targets: [claude, codex]
 ---
 
 # Commit, push, and create PR

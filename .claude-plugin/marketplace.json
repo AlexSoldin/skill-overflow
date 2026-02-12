@@ -1,0 +1,17 @@
+{
+  "name": "skill-overflow",
+  "owner": {
+    "name": "Alex Soldin"
+  },
+  "metadata": {
+    "description": "Team skill marketplace for shared Claude Code workflows."
+  },
+  "plugins": [
+    {
+      "name": "skill-overflow",
+      "source": "./",
+      "description": "Shared team skills for commit workflows, pre-commit management, and plugin updates.",
+      "category": "productivity"
+    }
+  ]
+}

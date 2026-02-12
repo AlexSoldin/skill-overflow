@@ -1,152 +1,77 @@
-# Claude, Codex, and Cursor Skills/Rules
+# skill-overflow
 
-A collection of custom skills for [Claude Code](https://claude.com/claude-code), [Codex](https://openai.com/codex), and rules for [Cursor](https://cursor.com).
+A Claude Code plugin providing shared team skills for commit workflows, pre-commit management, and plugin updates.
 
-## What's the Difference?
+## Available Skills
 
-| Aspect | Claude Skills | Codex Skills | Cursor Rules |
-|--------|---------------|--------------|--------------|
-| Location | `~/.claude/skills/` | `$CODEX_HOME/skills/` (defaults to `~/.codex/skills/`) | `~/.cursor/rules/` |
-| Format | `SKILL.md` with YAML frontmatter | `SKILL.md` with YAML frontmatter | `.mdc` markdown files |
-| Invocation | Slash commands (`/skill-name`) | Slash commands (`/skill-name`) | Auto-applied or manually referenced |
-| Structure | Directory per skill | Directory per skill | Single file per rule |
-
-**Skills** are explicitly invoked via slash commands in Claude Code and Codex. **Rules** provide contextual guidance that Cursor can apply automatically or that you reference in prompts.
-
-## Available Skills & Rules
-
-| Name | Description | Claude | Codex | Cursor |
-|------|-------------|--------|-------|--------|
-| commit-push-pr | Commit changes, push to remote, and create a PR. Enforces branch protection. | ✓ | ✓ | ✓ |
-| refresh-claude-skills | Pull latest changes and reinstall Claude skills. | ✓ | — | — |
-| refresh-codex-skills | Pull latest changes and reinstall Codex skills. | — | ✓ | — |
-| refresh-cursor-rules | Pull latest changes and reinstall Cursor rules. | — | — | ✓ |
+| Skill | Description |
+|-------|-------------|
+| `commit-push-pr` | Commit staged changes, push to remote, and create a PR. Enforces branch protection by never pushing directly to main. |
+| `refresh-plugin` | Update the skill-overflow plugin to the latest version. |
 
 ## Installation
 
-### Quick Install
+Add the marketplace and install the plugin:
 
-Run the install script - it will prompt you to choose which tool(s) to install for:
-
-```bash
-./install.sh
+```
+/plugin marketplace add AlexSoldin/skill-overflow
+/plugin install skill-overflow@skill-overflow
 ```
 
-You'll see:
-```
-Install for which tool?
-1) Claude only
-2) Codex only
-3) Cursor only
-4) Claude + Cursor
-5) All (Recommended)
-Choice [5]:
-```
+## Team-Wide Setup
 
-### Non-Interactive Install
+To auto-configure the plugin for all team projects, add to `.claude/settings.json`:
 
-Use flags to skip the prompt:
-
-```bash
-./install.sh --claude    # Install Claude skills only
-./install.sh --codex     # Install Codex skills only
-./install.sh --cursor    # Install Cursor rules only
-./install.sh --all       # Install Claude + Codex + Cursor (same as default)
+```json
+{
+  "extraKnownMarketplaces": {
+    "skill-overflow": {
+      "source": { "source": "github", "repo": "AlexSoldin/skill-overflow" }
+    }
+  },
+  "enabledPlugins": {
+    "skill-overflow@skill-overflow": true
+  }
+}
 ```
 
-### Flags
+## Updating
 
-```bash
---claude    Install Claude skills only
---codex     Install Codex skills only
---cursor    Install Cursor rules only
---all       Install Claude + Codex + Cursor (default when no tool is specified)
---force     Replace existing symlinks (never overwrites real directories/files)
---prune     Remove stale or non-targeted symlinks that point into this repo
---list      Show what would be installed (no changes)
+Update to the latest version:
+
+```
+/plugin update skill-overflow@skill-overflow
 ```
 
-Add `--force` to update existing symlinks:
+Or use the built-in skill:
 
-```bash
-./install.sh --force --claude --cursor
 ```
-
-Add `--prune` to remove non-targeted or stale symlinks:
-
-```bash
-./install.sh --prune --codex
-./install.sh --prune --all
-```
-
-List what would be installed:
-
-```bash
-./install.sh --list --all
-./install.sh --list --codex
-```
-
-### Manual Install
-
-**Claude skills:**
-```bash
-ln -sf /path/to/claude-skills/skills/commit-push-pr ~/.claude/skills/commit-push-pr
-```
-
-**Codex skills:**
-```bash
-ln -sf /path/to/claude-skills/skills/commit-push-pr ~/.codex/skills/commit-push-pr
-```
-
-**Cursor rules:**
-```bash
-ln -sf /path/to/claude-skills/cursor-rules/commit-push-pr.mdc ~/.cursor/rules/commit-push-pr.mdc
+/skill-overflow:refresh-plugin
 ```
 
 ## Usage
 
-### Claude Code
-
-Invoke skills using slash commands:
+Invoke skills using namespaced slash commands:
 
 ```
-/commit-push-pr
-/refresh-claude-skills
+/skill-overflow:commit-push-pr
+/skill-overflow:refresh-plugin
 ```
 
-### Codex
-
-Invoke skills using slash commands:
-
-```
-/commit-push-pr
-/refresh-codex-skills
-```
-
-### Cursor
-
-Rules in `~/.cursor/rules/` can be:
-1. **Referenced directly** - Cursor can access rules from this global location
-2. **Symlinked to projects** - Create project-specific symlinks:
-   ```bash
-   ln -sf ~/.cursor/rules/commit-push-pr.mdc /path/to/project/.cursor/rules/
-   ```
-
-## Creating New Skills/Rules
-
-### Claude Skill
+## Creating New Skills
 
 1. Create a directory under `skills/`:
-   ```bash
+
+   ```
    mkdir skills/my-new-skill
    ```
 
-2. Create a `SKILL.md` file with YAML frontmatter:
+2. Add a `SKILL.md` with YAML frontmatter:
+
    ```markdown
    ---
    name: my-new-skill
-   description: Brief description of what the skill does
-   allowed-tools: Bash, Read, Write
+   description: Brief description of what the skill does.
    ---
 
    # My New Skill
@@ -154,46 +79,7 @@ Rules in `~/.cursor/rules/` can be:
    Instructions for Claude to follow when this skill is invoked.
    ```
 
-3. Run `./install.sh --claude` to create the symlink
-
-### Codex Skill
-
-1. Create a directory under `skills/`:
-   ```bash
-   mkdir skills/my-new-skill
-   ```
-
-2. Create a `SKILL.md` file with YAML frontmatter, including `targets`:
-   ```markdown
-   ---
-   name: my-new-skill
-   description: Brief description of what the skill does
-   allowed-tools: Bash, Read, Write
-   targets: [codex]
-   ---
-
-   # My New Skill
-
-   Instructions for Codex to follow when this skill is invoked.
-   ```
-
-3. Run `./install.sh --codex` to create the symlink
-
-### Cursor Rule
-
-1. Create a `.mdc` file under `cursor-rules/`:
-   ```bash
-   touch cursor-rules/my-new-rule.mdc
-   ```
-
-2. Add markdown content (no frontmatter needed):
-   ```markdown
-   # My New Rule
-
-   When asked to do X, follow these instructions...
-   ```
-
-3. Run `./install.sh --cursor` to create the symlink
+3. Commit and push — team members get the new skill on their next plugin update.
 
 ## License
 
