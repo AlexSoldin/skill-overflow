@@ -3,14 +3,20 @@ name: Validate Plugin
 on:
   push:
     paths:
-      - "skills/**"
+      - "*/skills/**"
+      - "*/agents/**"
+      - "*/commands/**"
       - "scripts/**"
       - ".claude-plugin/**"
+      - "*/.claude-plugin/**"
   pull_request:
     paths:
-      - "skills/**"
+      - "*/skills/**"
+      - "*/agents/**"
+      - "*/commands/**"
       - "scripts/**"
       - ".claude-plugin/**"
+      - "*/.claude-plugin/**"
 
 jobs:
   validate:

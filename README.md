@@ -1,26 +1,48 @@
 # skill-overflow
 
-A Claude Code plugin providing shared team skills for commit workflows, pre-commit management, and plugin updates.
+A Claude Code plugin marketplace providing department-specific skills and agents for shared team workflows.
 
-## Available Skills
+## Marketplace Structure
 
-| Skill | Description |
-|-------|-------------|
-| `commit-push-pr` | Commit staged changes, push to remote, and create a PR. Enforces branch protection by never pushing directly to main. |
-| `refresh-plugin` | Update the skill-overflow plugin to the latest version. |
+```
+skill-overflow/
+  .claude-plugin/
+    marketplace.json          # Marketplace catalog (lists all plugins)
+  shared/                     # Shared cross-team plugin
+    .claude-plugin/plugin.json
+    skills/
+    agents/
+  engineering/                # Engineering department plugin
+  marketing/                  # Marketing department plugin
+  research/                   # Research department plugin
+  sales/                      # Sales department plugin
+  customer-success/           # Customer success department plugin
+```
+
+## Available Plugins
+
+| Plugin | Category | Description |
+|--------|----------|-------------|
+| `shared` | productivity | Shared skills for commit workflows, plugin updates, and common team tooling. |
+| `engineering` | development | Engineering department skills and agents for development workflows. |
+| `marketing` | productivity | Marketing department skills and agents for content and campaign workflows. |
+| `research` | productivity | Research department skills and agents for analysis and discovery workflows. |
+| `sales` | productivity | Sales department skills and agents for pipeline and outreach workflows. |
+| `customer-success` | productivity | Customer success department skills and agents for support and retention workflows. |
 
 ## Installation
 
-Add the marketplace and install the plugin:
+Add the marketplace, then install the plugins relevant to your team:
 
 ```
 /plugin marketplace add AlexSoldin/skill-overflow
-/plugin install skill-overflow@skill-overflow
+/plugin install skill-overflow@shared
+/plugin install skill-overflow@engineering
 ```
 
 ## Team-Wide Setup
 
-To auto-configure the plugin for all team projects, add to `.claude/settings.json`:
+To auto-configure plugins for all team projects, add to `.claude/settings.json`:
 
 ```json
 {
@@ -30,23 +52,26 @@ To auto-configure the plugin for all team projects, add to `.claude/settings.jso
     }
   },
   "enabledPlugins": {
-    "skill-overflow@skill-overflow": true
+    "skill-overflow@shared": true,
+    "skill-overflow@engineering": true
   }
 }
 ```
 
+Add or remove department plugins from `enabledPlugins` based on team needs.
+
 ## Updating
 
-Update to the latest version:
+Update plugins to the latest version:
 
 ```
-/plugin update skill-overflow@skill-overflow
+/plugin update skill-overflow@shared
 ```
 
-Or use the built-in skill:
+Or use the built-in skill to update all installed plugins:
 
 ```
-/skill-overflow:refresh-plugin
+/shared:refresh-plugin
 ```
 
 ## Usage
@@ -54,16 +79,49 @@ Or use the built-in skill:
 Invoke skills using namespaced slash commands:
 
 ```
-/skill-overflow:commit-push-pr
-/skill-overflow:refresh-plugin
+/shared:commit-push-pr
+/shared:refresh-plugin
 ```
 
-## Creating New Skills
+## Adding a New Department Plugin
 
-1. Create a directory under `skills/`:
+1. Create the directory structure:
 
    ```
-   mkdir skills/my-new-skill
+   mkdir -p my-department/.claude-plugin my-department/skills my-department/agents
+   ```
+
+2. Add a `my-department/.claude-plugin/plugin.json`:
+
+   ```json
+   {
+     "name": "my-department",
+     "version": "1.0.0",
+     "description": "My department skills and agents."
+   }
+   ```
+
+3. Register it in `.claude-plugin/marketplace.json` under `plugins`:
+
+   ```json
+   {
+     "name": "my-department",
+     "source": "./my-department",
+     "description": "My department skills and agents.",
+     "category": "productivity"
+   }
+   ```
+
+4. Commit and push — team members can install with `/plugin install skill-overflow@my-department`.
+
+## Adding Skills or Agents to a Department
+
+### Skills
+
+1. Create a directory under the department's `skills/`:
+
+   ```
+   mkdir engineering/skills/my-new-skill
    ```
 
 2. Add a `SKILL.md` with YAML frontmatter:
@@ -79,7 +137,22 @@ Invoke skills using namespaced slash commands:
    Instructions for Claude to follow when this skill is invoked.
    ```
 
-3. Commit and push — team members get the new skill on their next plugin update.
+### Agents
+
+1. Create a markdown file under the department's `agents/`:
+
+   ```markdown
+   ---
+   name: my-agent
+   description: Brief description of what the agent does.
+   ---
+
+   # My Agent
+
+   System prompt and instructions for the agent.
+   ```
+
+3. Commit and push — team members get the new skill/agent on their next plugin update.
 
 ## License
 

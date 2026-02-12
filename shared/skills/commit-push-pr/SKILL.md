@@ -51,7 +51,7 @@ If already on a feature branch, proceed to step 3.
    - Optional body for detailed explanation
    - Optional breaking changes footer
    - Examples:
-     - "feat: add user authentication"
+     - "feat(user-auth): add user authentication"
      - "fix(nav): resolve navigation bug on mobile"
      - "refactor(contact): simplify form validation"
 4. Create the commit using a HEREDOC for proper formatting:
@@ -62,7 +62,6 @@ git commit -m "$(cat <<'EOF'
 
 <optional body>
 
-Co-Authored-By: AI Assistant <noreply@local>
 EOF
 )"
 ```
@@ -84,10 +83,7 @@ gh pr create --title "<type>(<scope>): <description>" --body "$(cat <<'EOF'
 ## Summary
 - Brief description of changes
 
-## Test plan
-- [ ] Steps to test the changes
-
-Generated with an AI assistant
+- Any Linear or Sentry issue number associated
 EOF
 )"
 ```

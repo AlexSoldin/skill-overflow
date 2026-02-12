@@ -4,13 +4,43 @@
     "name": "Alex Soldin"
   },
   "metadata": {
-    "description": "Team skill marketplace for shared Claude Code workflows."
+    "description": "Company plugin marketplace for shared Claude Code workflows."
   },
   "plugins": [
     {
-      "name": "skill-overflow",
-      "source": "./",
-      "description": "Shared team skills for commit workflows, pre-commit management, and plugin updates.",
+      "name": "shared",
+      "source": "./shared",
+      "description": "Shared skills for commit workflows, plugin updates, and common team tooling.",
+      "category": "productivity"
+    },
+    {
+      "name": "engineering",
+      "source": "./engineering",
+      "description": "Engineering department skills and agents for development workflows.",
+      "category": "development"
+    },
+    {
+      "name": "marketing",
+      "source": "./marketing",
+      "description": "Marketing department skills and agents for content and campaign workflows.",
+      "category": "productivity"
+    },
+    {
+      "name": "research",
+      "source": "./research",
+      "description": "Research department skills and agents for analysis and discovery workflows.",
+      "category": "productivity"
+    },
+    {
+      "name": "sales",
+      "source": "./sales",
+      "description": "Sales department skills and agents for pipeline and outreach workflows.",
+      "category": "productivity"
+    },
+    {
+      "name": "customer-success",
+      "source": "./customer-success",
+      "description": "Customer success department skills and agents for support and retention workflows.",
       "category": "productivity"
     }
   ]
