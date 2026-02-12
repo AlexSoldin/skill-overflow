@@ -2,7 +2,7 @@ name: Create Skill PR from Issue
 
 on:
   issues:
-    types: [labeled]
+    types: [opened, labeled]
 
 permissions:
   contents: write
@@ -11,7 +11,9 @@ permissions:
 
 jobs:
   create-skill:
-    if: github.event.label.name == 'new-skill'
+    if: >-
+      (github.event.action == 'labeled' && github.event.label.name == 'new-skill') ||
+      (github.event.action == 'opened' && contains(github.event.issue.labels.*.name, 'new-skill'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
