@@ -1,0 +1,100 @@
+name: Create Skill PR from Issue
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  create-skill:
+    if: github.event.label.name == 'new-skill'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Parse issue and generate skill
+        uses: actions/github-script@v7
+        id: parse
+        with:
+          script: |
+            const body = context.payload.issue.body;
+
+            function extractField(label) {
+              const regex = new RegExp(`### ${label}\\s*\\n\\s*([\\s\\S]*?)(?=\\n### |$)`);
+              const match = body.match(regex);
+              return match ? match[1].trim() : '';
+            }
+
+            const skillName = extractField('Skill Name');
+            const department = extractField('Department');
+            const description = extractField('Short Description');
+            const instructions = extractField('Instructions');
+            const safetyRules = extractField('Safety Rules');
+
+            // Validate kebab-case
+            if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(skillName)) {
+              core.setFailed(`Invalid skill name: "${skillName}". Must be kebab-case.`);
+              return;
+            }
+
+            // Build SKILL.md content
+            let content = `---\nname: ${skillName}\ndescription: ${description}\n---\n\n`;
+            content += `# ${skillName.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')}\n\n`;
+            content += `${description}\n\n`;
+            content += `## Instructions\n\n${instructions}\n`;
+
+            if (safetyRules) {
+              content += `\n## Safety Rules\n\n${safetyRules}\n`;
+            }
+
+            const fs = require('fs');
+            const dir = `${department}/skills/${skillName}`;
+            fs.mkdirSync(dir, { recursive: true });
+            fs.writeFileSync(`${dir}/SKILL.md`, content);
+
+            core.setOutput('skill-name', skillName);
+            core.setOutput('department', department);
+            core.setOutput('branch', `new-skill/${skillName}`);
+
+      - name: Validate plugin structure
+        run: python scripts/validate_plugin.py
+
+      - name: Create pull request
+        uses: peter-evans/create-pull-request@v7
+        id: create-pr
+        with:
+          branch: ${{ steps.parse.outputs.branch }}
+          commit-message: "feat(${{ steps.parse.outputs.department }}): add ${{ steps.parse.outputs.skill-name }} skill"
+          title: "feat(${{ steps.parse.outputs.department }}): add ${{ steps.parse.outputs.skill-name }} skill"
+          body: |
+            ## Summary
+            - Adds new skill `${{ steps.parse.outputs.skill-name }}` to the `${{ steps.parse.outputs.department }}` plugin
+            - Auto-generated from issue #${{ github.event.issue.number }}
+
+            ## Test plan
+            - [ ] Validate plugin structure passes
+            - [ ] Skill frontmatter is correct
+            - [ ] Instructions are clear and actionable
+
+      - name: Comment on issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = '${{ steps.create-pr.outputs.pull-request-number }}';
+            const prUrl = '${{ steps.create-pr.outputs.pull-request-url }}';
+            if (prNumber) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: `Your skill has been generated and a pull request has been created: ${prUrl}\n\nA maintainer will review it shortly.`
+              });
+            }

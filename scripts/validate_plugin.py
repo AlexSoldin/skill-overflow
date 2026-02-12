@@ -9,6 +9,18 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 errors: list[str] = []
 
+KNOWN_HOOK_EVENTS = {
+    "PreToolUse",
+    "PostToolUse",
+    "Notification",
+    "Stop",
+    "SubagentStop",
+    "UserPromptSubmit",
+    "SessionStart",
+    "SessionEnd",
+    "PreCompact",
+}
+
 
 def error(msg: str) -> None:
     errors.append(msg)
@@ -61,6 +73,96 @@ def validate_no_root_plugin_json() -> None:
         )
 
 
+def validate_mcp_json(plugin_name: str, plugin_dir: Path) -> None:
+    """Validate .mcp.json if present."""
+    mcp_path = plugin_dir / ".mcp.json"
+    if not mcp_path.exists():
+        return
+
+    try:
+        data = json.loads(mcp_path.read_text())
+    except json.JSONDecodeError as exc:
+        error(f"Plugin '{plugin_name}': .mcp.json is not valid JSON: {exc}")
+        return
+
+    if not isinstance(data, dict):
+        error(f"Plugin '{plugin_name}': .mcp.json must be a JSON object")
+        return
+
+    for server_name, server_config in data.items():
+        if not isinstance(server_config, dict):
+            error(f"Plugin '{plugin_name}': .mcp.json server '{server_name}' must be an object")
+            continue
+
+        has_command = "command" in server_config
+        has_http = "type" in server_config and "url" in server_config
+
+        if not has_command and not has_http:
+            error(
+                f"Plugin '{plugin_name}': .mcp.json server '{server_name}' must have either "
+                f"'command' (stdio) or 'type' + 'url' (http/sse)"
+            )
+
+
+def validate_hooks_json(plugin_name: str, plugin_dir: Path) -> None:
+    """Validate hooks/hooks.json if present."""
+    hooks_path = plugin_dir / "hooks" / "hooks.json"
+    if not hooks_path.exists():
+        return
+
+    try:
+        data = json.loads(hooks_path.read_text())
+    except json.JSONDecodeError as exc:
+        error(f"Plugin '{plugin_name}': hooks/hooks.json is not valid JSON: {exc}")
+        return
+
+    hooks = data.get("hooks")
+    if not isinstance(hooks, dict):
+        error(f"Plugin '{plugin_name}': hooks/hooks.json missing 'hooks' dict")
+        return
+
+    for event_name, event_hooks in hooks.items():
+        if event_name not in KNOWN_HOOK_EVENTS:
+            error(
+                f"Plugin '{plugin_name}': hooks/hooks.json has unknown event '{event_name}'. "
+                f"Known events: {', '.join(sorted(KNOWN_HOOK_EVENTS))}"
+            )
+
+        if not isinstance(event_hooks, list):
+            error(
+                f"Plugin '{plugin_name}': hooks/hooks.json event '{event_name}' "
+                f"must be a list"
+            )
+
+
+def validate_commands(plugin_name: str, plugin_dir: Path) -> None:
+    """Validate command .md files if commands/ directory exists."""
+    commands_dir = plugin_dir / "commands"
+    if not commands_dir.is_dir():
+        return
+
+    for cmd_file in sorted(commands_dir.iterdir()):
+        if cmd_file.suffix != ".md":
+            continue
+
+        cmd_name = cmd_file.stem
+        content = cmd_file.read_text()
+
+        match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
+        if not match:
+            error(f"Plugin '{plugin_name}': commands/{cmd_name}.md missing YAML frontmatter")
+            continue
+
+        frontmatter = match.group(1)
+
+        desc_match = re.search(r"^description:\s*(.+)$", frontmatter, re.MULTILINE)
+        if not desc_match or not desc_match.group(1).strip():
+            error(
+                f"Plugin '{plugin_name}': commands/{cmd_name}.md "
+                f"frontmatter missing 'description'"
+            )
+
+
 def validate_plugin(plugin: dict) -> None:
     """Validate a single department plugin directory."""
     name = plugin.get("name", "unknown")
@@ -109,6 +211,11 @@ def validate_plugin(plugin: dict) -> None:
             if agent_file.suffix != ".md":
                 continue
             validate_agent(name, agent_file)
+
+    # Validate MCP, hooks, and commands
+    validate_mcp_json(name, plugin_dir)
+    validate_hooks_json(name, plugin_dir)
+    validate_commands(name, plugin_dir)
 
 
 def validate_skill(plugin_name: str, skill_dir: Path) -> None:
@@ -162,7 +269,18 @@ def validate_agent(plugin_name: str, agent_file: Path) -> None:
         error(f"Plugin '{plugin_name}': agents/{agent_name}.md frontmatter missing 'name'")
 
     desc_match = re.search(r"^description:\s*(.+)$", frontmatter, re.MULTILINE)
-    if not desc_match or not desc_match.group(1).strip():
+    if not desc_match:
+        error(f"Plugin '{plugin_name}': agents/{agent_name}.md frontmatter missing 'description'")
+    elif desc_match.group(1).strip() in ("|", ">"):
+        # Multiline YAML block scalar — verify there's indented content following
+        desc_line_end = desc_match.end()
+        remaining = frontmatter[desc_line_end:]
+        if not re.match(r"\n[ \t]+\S", remaining):
+            error(
+                f"Plugin '{plugin_name}': agents/{agent_name}.md frontmatter 'description' "
+                f"uses block scalar but has no indented content"
+            )
+    elif not desc_match.group(1).strip():
         error(f"Plugin '{plugin_name}': agents/{agent_name}.md frontmatter missing 'description'")
 
 
