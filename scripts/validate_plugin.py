@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 errors: list[str] = []
+counts: dict[str, dict[str, int]] = {}
 
 KNOWN_HOOK_EVENTS = {
     "PreToolUse",
@@ -21,10 +22,19 @@ KNOWN_HOOK_EVENTS = {
     "PreCompact",
 }
 
+KNOWN_HOOK_TYPES = {"prompt", "command"}
+
 
 def error(msg: str) -> None:
     errors.append(msg)
     print(f"  FAIL: {msg}")
+
+
+def track(plugin_name: str, resource_type: str) -> None:
+    """Track resource counts per plugin for summary output."""
+    if plugin_name not in counts:
+        counts[plugin_name] = {"skills": 0, "agents": 0, "commands": 0, "hooks": 0}
+    counts[plugin_name][resource_type] += 1
 
 
 def validate_marketplace_json() -> list[dict]:
@@ -57,7 +67,9 @@ def validate_marketplace_json() -> list[dict]:
         if not plugin.get("name"):
             error("marketplace.json plugin entry missing 'name'")
         if not plugin.get("source"):
-            error(f"marketplace.json plugin '{plugin.get('name', '?')}' missing 'source'")
+            error(
+                f"marketplace.json plugin '{plugin.get('name', '?')}' missing 'source'"
+            )
 
     return plugins
 
@@ -91,7 +103,9 @@ def validate_mcp_json(plugin_name: str, plugin_dir: Path) -> None:
 
     for server_name, server_config in data.items():
         if not isinstance(server_config, dict):
-            error(f"Plugin '{plugin_name}': .mcp.json server '{server_name}' must be an object")
+            error(
+                f"Plugin '{plugin_name}': .mcp.json server '{server_name}' must be an object"
+            )
             continue
 
         has_command = "command" in server_config
@@ -133,6 +147,41 @@ def validate_hooks_json(plugin_name: str, plugin_dir: Path) -> None:
                 f"Plugin '{plugin_name}': hooks/hooks.json event '{event_name}' "
                 f"must be a list"
             )
+            continue
+
+        for i, hook_entry in enumerate(event_hooks):
+            label = f"hooks/hooks.json event '{event_name}' entry {i}"
+            track(plugin_name, "hooks")
+
+            if not isinstance(hook_entry, dict):
+                error(f"Plugin '{plugin_name}': {label} must be an object")
+                continue
+
+            # matcher is required
+            if "matcher" not in hook_entry:
+                error(f"Plugin '{plugin_name}': {label} missing 'matcher'")
+
+            # type is required and must be known
+            hook_type = hook_entry.get("type")
+            if not hook_type:
+                error(f"Plugin '{plugin_name}': {label} missing 'type'")
+            elif hook_type not in KNOWN_HOOK_TYPES:
+                error(
+                    f"Plugin '{plugin_name}': {label} has unknown type '{hook_type}'. "
+                    f"Expected one of: {', '.join(sorted(KNOWN_HOOK_TYPES))}"
+                )
+
+            # Validate the matching content field exists
+            if hook_type == "prompt" and not hook_entry.get("prompt"):
+                error(
+                    f"Plugin '{plugin_name}': {label} has type 'prompt' "
+                    f"but missing 'prompt' field"
+                )
+            elif hook_type == "command" and not hook_entry.get("command"):
+                error(
+                    f"Plugin '{plugin_name}': {label} has type 'command' "
+                    f"but missing 'command' field"
+                )
 
 
 def validate_commands(plugin_name: str, plugin_dir: Path) -> None:
@@ -147,19 +196,40 @@ def validate_commands(plugin_name: str, plugin_dir: Path) -> None:
 
         cmd_name = cmd_file.stem
         content = cmd_file.read_text()
+        label = f"commands/{cmd_name}.md"
+        track(plugin_name, "commands")
 
         match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
         if not match:
-            error(f"Plugin '{plugin_name}': commands/{cmd_name}.md missing YAML frontmatter")
+            error(f"Plugin '{plugin_name}': {label} missing YAML frontmatter")
             continue
 
         frontmatter = match.group(1)
 
+        # description is required
         desc_match = re.search(r"^description:\s*(.+)$", frontmatter, re.MULTILINE)
         if not desc_match or not desc_match.group(1).strip():
+            error(f"Plugin '{plugin_name}': {label} frontmatter missing 'description'")
+
+        # allowed-tools must be a YAML list if present
+        if "allowed-tools:" in frontmatter:
+            tools_entries = re.findall(
+                r"^  - (.+)$",
+                frontmatter[frontmatter.index("allowed-tools:") :],
+                re.MULTILINE,
+            )
+            if not tools_entries:
+                error(
+                    f"Plugin '{plugin_name}': {label} "
+                    f"'allowed-tools' is declared but has no entries"
+                )
+
+        # Body content after frontmatter is required (the actual instructions)
+        body = content[match.end() :].strip()
+        if not body:
             error(
-                f"Plugin '{plugin_name}': commands/{cmd_name}.md "
-                f"frontmatter missing 'description'"
+                f"Plugin '{plugin_name}': {label} "
+                f"has no content after frontmatter (instructions are required)"
             )
 
 
@@ -191,7 +261,9 @@ def validate_plugin(plugin: dict) -> None:
         if not pname:
             error(f"Plugin '{name}': plugin.json missing 'name'")
         elif not re.fullmatch(r"[a-z0-9]+(-[a-z0-9]+)*", pname):
-            error(f"Plugin '{name}': plugin.json 'name' must be kebab-case, got '{pname}'")
+            error(
+                f"Plugin '{name}': plugin.json 'name' must be kebab-case, got '{pname}'"
+            )
 
         if not pdata.get("version"):
             error(f"Plugin '{name}': plugin.json missing 'version'")
@@ -222,33 +294,42 @@ def validate_skill(plugin_name: str, skill_dir: Path) -> None:
     """Validate a skill directory has proper SKILL.md with frontmatter."""
     skill_name = skill_dir.name
     skill_file = skill_dir / "SKILL.md"
+    label = f"skills/{skill_name}/SKILL.md"
+    track(plugin_name, "skills")
 
     if not skill_file.exists():
-        error(f"Plugin '{plugin_name}': skills/{skill_name}/SKILL.md not found")
+        error(f"Plugin '{plugin_name}': {label} not found")
         return
 
     content = skill_file.read_text()
     match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
     if not match:
-        error(f"Plugin '{plugin_name}': skills/{skill_name}/SKILL.md missing YAML frontmatter")
+        error(f"Plugin '{plugin_name}': {label} missing YAML frontmatter")
         return
 
     frontmatter = match.group(1)
 
+    # name is required and must match the directory name
     name_match = re.search(r"^name:\s*(.+)$", frontmatter, re.MULTILINE)
     if not name_match:
-        error(f"Plugin '{plugin_name}': skills/{skill_name}/SKILL.md frontmatter missing 'name'")
+        error(f"Plugin '{plugin_name}': {label} frontmatter missing 'name'")
     elif name_match.group(1).strip() != skill_name:
         error(
-            f"Plugin '{plugin_name}': skills/{skill_name}/SKILL.md 'name' is "
+            f"Plugin '{plugin_name}': {label} 'name' is "
             f"'{name_match.group(1).strip()}', expected '{skill_name}'"
         )
 
+    # description is required
     desc_match = re.search(r"^description:\s*(.+)$", frontmatter, re.MULTILINE)
     if not desc_match or not desc_match.group(1).strip():
+        error(f"Plugin '{plugin_name}': {label} frontmatter missing 'description'")
+
+    # Body content after frontmatter is required (the skill instructions)
+    body = content[match.end() :].strip()
+    if not body:
         error(
-            f"Plugin '{plugin_name}': skills/{skill_name}/SKILL.md "
-            f"frontmatter missing 'description'"
+            f"Plugin '{plugin_name}': {label} "
+            f"has no content after frontmatter (instructions are required)"
         )
 
 
@@ -256,32 +337,62 @@ def validate_agent(plugin_name: str, agent_file: Path) -> None:
     """Validate an agent file has proper frontmatter."""
     agent_name = agent_file.stem
     content = agent_file.read_text()
+    label = f"agents/{agent_name}.md"
+    track(plugin_name, "agents")
 
     match = re.match(r"^---\n(.*?)\n---", content, re.DOTALL)
     if not match:
-        error(f"Plugin '{plugin_name}': agents/{agent_name}.md missing YAML frontmatter")
+        error(f"Plugin '{plugin_name}': {label} missing YAML frontmatter")
         return
 
     frontmatter = match.group(1)
 
+    # name is required and should match the filename
     name_match = re.search(r"^name:\s*(.+)$", frontmatter, re.MULTILINE)
     if not name_match:
-        error(f"Plugin '{plugin_name}': agents/{agent_name}.md frontmatter missing 'name'")
+        error(f"Plugin '{plugin_name}': {label} frontmatter missing 'name'")
+    else:
+        declared_name = name_match.group(1).strip()
+        if declared_name != agent_name:
+            error(
+                f"Plugin '{plugin_name}': {label} 'name' is "
+                f"'{declared_name}', expected '{agent_name}'"
+            )
 
+    # description is required (supports block scalars | and >)
     desc_match = re.search(r"^description:\s*(.+)$", frontmatter, re.MULTILINE)
     if not desc_match:
-        error(f"Plugin '{plugin_name}': agents/{agent_name}.md frontmatter missing 'description'")
+        error(f"Plugin '{plugin_name}': {label} frontmatter missing 'description'")
     elif desc_match.group(1).strip() in ("|", ">"):
         # Multiline YAML block scalar — verify there's indented content following
         desc_line_end = desc_match.end()
         remaining = frontmatter[desc_line_end:]
         if not re.match(r"\n[ \t]+\S", remaining):
             error(
-                f"Plugin '{plugin_name}': agents/{agent_name}.md frontmatter 'description' "
+                f"Plugin '{plugin_name}': {label} frontmatter 'description' "
                 f"uses block scalar but has no indented content"
             )
     elif not desc_match.group(1).strip():
-        error(f"Plugin '{plugin_name}': agents/{agent_name}.md frontmatter missing 'description'")
+        error(f"Plugin '{plugin_name}': {label} frontmatter missing 'description'")
+
+    # tools must be a YAML list if present
+    if "tools:" in frontmatter:
+        tools_entries = re.findall(
+            r"^  - (.+)$", frontmatter[frontmatter.index("tools:") :], re.MULTILINE
+        )
+        if not tools_entries:
+            error(
+                f"Plugin '{plugin_name}': {label} "
+                f"'tools' is declared but has no entries"
+            )
+
+    # Body content after frontmatter is required (the agent system prompt)
+    body = content[match.end() :].strip()
+    if not body:
+        error(
+            f"Plugin '{plugin_name}': {label} "
+            f"has no content after frontmatter (system prompt is required)"
+        )
 
 
 def main() -> int:
@@ -290,6 +401,19 @@ def main() -> int:
 
     for plugin in plugins:
         validate_plugin(plugin)
+
+    # Print summary
+    print()
+    if counts:
+        print("Resource summary:")
+        for plugin_name, type_counts in sorted(counts.items()):
+            parts = [
+                f"{count} {rtype}"
+                for rtype, count in sorted(type_counts.items())
+                if count > 0
+            ]
+            if parts:
+                print(f"  {plugin_name}: {', '.join(parts)}")
 
     print()
     if errors:

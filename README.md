@@ -12,21 +12,16 @@ skill-overflow/
     .claude-plugin/plugin.json
     .mcp.json                 # MCP servers (n8n)
     skills/
-      commit-push-pr/
-      refresh-plugin/
-      create-skill/           # Interactive skill creation
-      register-mcp/           # MCP server registration
-      create-agent/           # Interactive agent creation
+      refresh-plugin/         # Update installed plugins
     agents/
   engineering/                # Engineering department plugin
+    .claude-plugin/plugin.json
     .mcp.json                 # MCP servers (Linear)
     skills/
+      commit-push-pr/         # Commit, push, and create a PR
     agents/
-      code-reviewer.md        # Code review agent
     commands/
-      review.md               # /review slash command
     hooks/
-      hooks.json              # Stop hook (test reminder)
   marketing/                  # Marketing department plugin
   research/                   # Research department plugin
     .mcp.json                 # MCP servers (Linear)
@@ -94,12 +89,6 @@ Each department plugin can include an `.mcp.json` file to register MCP (Model Co
 | `N8N_BASE_URL` | n8n | Your n8n instance URL |
 | `N8N_API_KEY` | n8n | Your n8n API key |
 
-To add a new MCP server, use the built-in skill:
-
-```
-/shared:register-mcp
-```
-
 ## Updating
 
 Update plugins to the latest version:
@@ -119,35 +108,9 @@ Or use the built-in skill to update all installed plugins:
 Invoke skills using namespaced slash commands:
 
 ```
-/shared:commit-push-pr       # Commit, push, and create a PR
-/shared:refresh-plugin        # Update installed plugins
-/shared:create-skill          # Create a new skill interactively
-/shared:register-mcp          # Register an MCP server
-/shared:create-agent          # Create a new agent interactively
-/engineering:review            # Run a code review (command)
+/shared:refresh-plugin              # Update installed plugins
+/engineering:commit-push-pr         # Commit, push, and create a PR
 ```
-
-## Contributing
-
-There are two ways to contribute new skills — no coding experience required for either.
-
-### Option 1: GitHub Issue Form (browser only)
-
-1. Go to **Issues > New Issue > New Skill Request**
-2. Fill in the form: skill name, department, description, instructions, and optional safety rules
-3. A GitHub Action will automatically generate the skill file and open a PR
-
-### Option 2: Claude Code Skill (interactive)
-
-Run the create-skill command inside Claude Code:
-
-```
-/shared:create-skill
-```
-
-Claude will walk you through the process step by step and generate the file for you.
-
-For more detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## Plugin Features Reference
 
@@ -164,7 +127,7 @@ For more detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md
 1. Create the directory structure:
 
    ```
-   mkdir -p my-department/.claude-plugin my-department/skills my-department/agents
+   mkdir -p my-department/.claude-plugin my-department/skills my-department/agents my-department/commands my-department/hooks
    ```
 
 2. Add a `my-department/.claude-plugin/plugin.json`:
@@ -189,6 +152,85 @@ For more detailed contribution guidelines, see [CONTRIBUTING.md](CONTRIBUTING.md
    ```
 
 4. Commit and push — team members can install with `/plugin install skill-overflow@my-department`.
+
+## Adding Skills, Agents, Commands, and Hooks
+
+Please utilise the plugin provided by Anthropic which assits with the creation of all of these elements.
+
+### Skills
+
+Create a directory under `skills/` with a `SKILL.md` containing YAML frontmatter and instructions:
+
+```
+mkdir engineering/skills/my-skill
+```
+
+```markdown
+---
+name: my-skill
+description: Brief description of what the skill does.
+---
+
+# My Skill
+
+Step-by-step instructions for Claude to follow when invoked.
+```
+
+### Agents
+
+Create a markdown file under `agents/` with a name, description, and system prompt:
+
+```markdown
+---
+name: my-agent
+description: Brief description of when this agent should be used.
+model: sonnet
+tools:
+  - Read
+  - Bash
+---
+
+You are a specialist agent. Your role is to...
+```
+
+### Commands
+
+Create a markdown file under `commands/` with a description and optional tool/model constraints:
+
+```markdown
+---
+description: What this command does in one line.
+allowed-tools:
+  - Read
+  - Grep
+model: sonnet
+argument-hint: "[optional-arg]"
+---
+
+# Command Name
+
+Instructions for what Claude should do when this command is invoked.
+```
+
+### Hooks
+
+Add entries to `hooks/hooks.json` to run prompts or commands on lifecycle events:
+
+```json
+{
+  "hooks": {
+    "Stop": [
+      {
+        "matcher": "*",
+        "type": "prompt",
+        "prompt": "Reminder to display before finishing."
+      }
+    ]
+  }
+}
+```
+
+Supported events: `PreToolUse`, `PostToolUse`, `Notification`, `Stop`, `SubagentStop`, `UserPromptSubmit`, `SessionStart`, `SessionEnd`, `PreCompact`.
 
 ## License
 
