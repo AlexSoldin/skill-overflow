@@ -13,6 +13,7 @@ skill-overflow/
     .mcp.json                 # MCP servers (n8n)
     skills/
       refresh-plugin/         # Update installed plugins
+      submit-skill/           # Submit a new skill via pull request
     agents/
   engineering/                # Engineering department plugin
     .claude-plugin/plugin.json
@@ -109,8 +110,13 @@ Invoke skills using namespaced slash commands:
 
 ```
 /shared:refresh-plugin              # Update installed plugins
+/shared:submit-skill               # Submit a new skill via pull request
 /engineering:commit-push-pr         # Commit, push, and create a PR
 ```
+
+## Versioning
+
+When you add or change skills, agents, commands, or hooks in a department plugin, bump the `version` field in that plugin's `plugin.json` and push to `main`. Users pick up changes by running `/shared:refresh-plugin` or `/plugin update skill-overflow@<plugin-name>`.
 
 ## Plugin Features Reference
 
