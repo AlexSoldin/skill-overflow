@@ -42,6 +42,12 @@
       "source": "./sales/sales",
       "description": "Sales department skills and agents.",
       "category": "productivity"
+    },
+    {
+      "name": "marketing",
+      "source": "./marketing/marketing",
+      "description": "Marketing department skills and agents.",
+      "category": "productivity"
     }
   ]
 }

@@ -62,8 +62,9 @@ Ask which department this skill belongs to. Present these options:
 - **shared** — Available to everyone
 - **engineering** — Engineering team
 - **research** — Research team
-
-Not all departments have plugins yet. If the user's department isn't listed, suggest "shared" as a starting point or offer to create a new plugin under their department.
+- **customer-success** — Customer Success team
+- **sales** — Sales team
+- **marketing** — Marketing team
 
 Accept a number or name. Default to "shared" if the user is unsure.
 
@@ -77,7 +78,10 @@ After the department is selected, determine which plugin the skill belongs to.
 Current plugins by department:
 - **shared**: `shared`
 - **engineering**: `engineering`
-- **research**: `coolset-academy`
+- **research**: `research`, `coolset-academy`
+- **customer-success**: `customer-success`
+- **sales**: `sales`
+- **marketing**: `marketing`
 
 #### 3. Skill name
 
