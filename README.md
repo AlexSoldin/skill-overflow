@@ -8,38 +8,44 @@ A Claude Code plugin marketplace providing department-specific skills and agents
 skill-overflow/
   .claude-plugin/
     marketplace.json          # Marketplace catalog (lists all plugins)
-  shared/                     # Shared cross-team plugin
-    .claude-plugin/plugin.json
-    .mcp.json                 # MCP servers (n8n)
-    skills/
-      refresh-plugin/         # Update installed plugins
-      submit-skill/           # Submit a new skill via pull request
-    agents/
-  engineering/                # Engineering department plugin
-    .claude-plugin/plugin.json
-    .mcp.json                 # MCP servers (Linear)
-    skills/
-      commit-push-pr/         # Commit, push, and create a PR
-    agents/
-    commands/
-    hooks/
-  marketing/                  # Marketing department plugin
-  research/                   # Research department plugin
-    .mcp.json                 # MCP servers (Linear)
-  sales/                      # Sales department plugin
-  customer-success/           # Customer success department plugin
+  shared/
+    shared/                   # Shared cross-team plugin
+      .claude-plugin/plugin.json
+      .mcp.json               # MCP servers (n8n)
+      skills/
+        refresh-plugin/       # Update installed plugins
+        submit-skill/         # Submit a new skill via pull request
+      agents/
+  engineering/
+    engineering/              # Engineering department plugin
+      .claude-plugin/plugin.json
+      .mcp.json               # MCP servers (Linear)
+      skills/
+        commit-push-pr/       # Commit, push, and create a PR
+        sentry-triage/        # Triage and fix Sentry errors
+      agents/
+      commands/
+      hooks/
+  research/
+    coolset-academy/          # Coolset Academy content writing plugin
+      .claude-plugin/plugin.json
+      skills/
+        academy-writing/      # Write, optimize, and review Academy articles
+      commands/
+        write-article.md
+        optimize-article.md
+        review-article.md
 ```
+
+Departments are organizational folders that contain one or more plugins. Empty departments are not included — they are created when a team submits their first real plugin.
 
 ## Available Plugins
 
-| Plugin | Category | Description |
-|--------|----------|-------------|
-| `shared` | productivity | Shared skills for commit workflows, plugin updates, and common team tooling. |
-| `engineering` | development | Engineering department skills and agents for development workflows. |
-| `marketing` | productivity | Marketing department skills and agents for content and campaign workflows. |
-| `research` | productivity | Research department skills and agents for analysis and discovery workflows. |
-| `sales` | productivity | Sales department skills and agents for pipeline and outreach workflows. |
-| `customer-success` | productivity | Customer success department skills and agents for support and retention workflows. |
+| Plugin | Department | Category | Description |
+|--------|------------|----------|-------------|
+| `shared` | shared | productivity | Shared skills for commit workflows, plugin updates, and common team tooling. |
+| `engineering` | engineering | development | Engineering department skills and agents for development workflows. |
+| `coolset-academy` | research | content | Create, optimize, and review Coolset Academy articles with consistent voice, style, and AI discoverability. |
 
 ## Installation
 
@@ -49,6 +55,7 @@ Add the marketplace, then install the plugins relevant to your team:
 /plugin marketplace add AlexSoldin/skill-overflow
 /plugin install skill-overflow@shared
 /plugin install skill-overflow@engineering
+/plugin install skill-overflow@coolset-academy
 ```
 
 ## Team-Wide Setup
@@ -64,16 +71,17 @@ To auto-configure plugins for all team projects, add to `.claude/settings.json`:
   },
   "enabledPlugins": {
     "skill-overflow@shared": true,
-    "skill-overflow@engineering": true
+    "skill-overflow@engineering": true,
+    "skill-overflow@coolset-academy": true
   }
 }
 ```
 
-Add or remove department plugins from `enabledPlugins` based on team needs.
+Add or remove plugins from `enabledPlugins` based on team needs.
 
 ## MCP Server Setup
 
-Each department plugin can include an `.mcp.json` file to register MCP (Model Context Protocol) servers. These provide Claude with access to external tools and services.
+Each plugin can include an `.mcp.json` file to register MCP (Model Context Protocol) servers. These provide Claude with access to external tools and services.
 
 **Current MCP servers:**
 
@@ -81,7 +89,6 @@ Each department plugin can include an `.mcp.json` file to register MCP (Model Co
 |--------|--------|------|-------------|
 | `shared` | n8n | stdio | Workflow automation via n8n |
 | `engineering` | Linear | http | Issue tracking and project management |
-| `research` | Linear | http | Issue tracking and project management |
 
 **Environment variables:** Some MCP servers require environment variables. Set these in your shell or `.env` file:
 
@@ -109,38 +116,75 @@ Or use the built-in skill to update all installed plugins:
 Invoke skills using namespaced slash commands:
 
 ```
-/shared:refresh-plugin              # Update installed plugins
-/shared:submit-skill               # Submit a new skill via pull request
-/engineering:commit-push-pr         # Commit, push, and create a PR
+/shared:refresh-plugin                  # Update installed plugins
+/shared:submit-skill                    # Submit a new skill via pull request
+/engineering:commit-push-pr             # Commit, push, and create a PR
+/engineering:sentry-triage              # Triage and fix Sentry errors
+/coolset-academy:academy-writing        # Write Coolset Academy content
+/coolset-academy:write-article [topic]  # Write an article from a brief
+/coolset-academy:optimize-article       # Optimize article for AI discoverability
+/coolset-academy:review-article         # Review a draft against guidelines
 ```
 
 ## Versioning
 
-When you add or change skills, agents, commands, or hooks in a department plugin, bump the `version` field in that plugin's `plugin.json` and push to `main`. Users pick up changes by running `/shared:refresh-plugin` or `/plugin update skill-overflow@<plugin-name>`.
+When you add or change skills, agents, commands, or hooks in a plugin, bump the `version` field in that plugin's `plugin.json` and push to `main`. Users pick up changes by running `/shared:refresh-plugin` or `/plugin update skill-overflow@<plugin-name>`.
 
 ## Plugin Features Reference
 
 | Feature | Location | Purpose |
 |---------|----------|---------|
-| Skills | `<plugin>/skills/<name>/SKILL.md` | Slash commands invoked by users |
-| Agents | `<plugin>/agents/<name>.md` | Autonomous sub-agents triggered by context |
-| Commands | `<plugin>/commands/<name>.md` | Slash commands with model/tool constraints |
-| Hooks | `<plugin>/hooks/hooks.json` | Event-driven automation (pre/post tool use, stop, etc.) |
-| MCP Servers | `<plugin>/.mcp.json` | External tool integrations via Model Context Protocol |
+| Skills | `<department>/<plugin>/skills/<name>/SKILL.md` | Slash commands invoked by users |
+| Agents | `<department>/<plugin>/agents/<name>.md` | Autonomous sub-agents triggered by context |
+| Commands | `<department>/<plugin>/commands/<name>.md` | Slash commands with model/tool constraints |
+| Hooks | `<department>/<plugin>/hooks/hooks.json` | Event-driven automation (pre/post tool use, stop, etc.) |
+| MCP Servers | `<department>/<plugin>/.mcp.json` | External tool integrations via Model Context Protocol |
 
-## Adding a New Department Plugin
+## Adding a New Plugin to an Existing Department
 
-1. Create the directory structure:
+1. Create the directory structure under the department folder:
 
    ```
-   mkdir -p my-department/.claude-plugin my-department/skills my-department/agents my-department/commands my-department/hooks
+   mkdir -p research/my-plugin/.claude-plugin research/my-plugin/skills research/my-plugin/agents research/my-plugin/commands research/my-plugin/hooks
    ```
 
-2. Add a `my-department/.claude-plugin/plugin.json`:
+2. Add a `research/my-plugin/.claude-plugin/plugin.json`:
 
    ```json
    {
-     "name": "my-department",
+     "name": "my-plugin",
+     "version": "1.0.0",
+     "description": "My plugin description."
+   }
+   ```
+
+3. Register it in `.claude-plugin/marketplace.json` under `plugins`:
+
+   ```json
+   {
+     "name": "my-plugin",
+     "source": "./research/my-plugin",
+     "description": "My plugin description.",
+     "category": "productivity",
+     "department": "research"
+   }
+   ```
+
+4. Commit and push — team members can install with `/plugin install skill-overflow@my-plugin`.
+
+## Adding a New Department Plugin
+
+1. Create a new department folder with a plugin subdirectory:
+
+   ```
+   mkdir -p new-department/my-plugin/.claude-plugin new-department/my-plugin/skills new-department/my-plugin/agents
+   ```
+
+2. Add a `new-department/my-plugin/.claude-plugin/plugin.json`:
+
+   ```json
+   {
+     "name": "my-plugin",
      "version": "1.0.0",
      "description": "My department skills and agents."
    }
@@ -150,14 +194,15 @@ When you add or change skills, agents, commands, or hooks in a department plugin
 
    ```json
    {
-     "name": "my-department",
-     "source": "./my-department",
+     "name": "my-plugin",
+     "source": "./new-department/my-plugin",
      "description": "My department skills and agents.",
-     "category": "productivity"
+     "category": "productivity",
+     "department": "new-department"
    }
    ```
 
-4. Commit and push — team members can install with `/plugin install skill-overflow@my-department`.
+4. Commit and push — team members can install with `/plugin install skill-overflow@my-plugin`.
 
 ## Adding Skills, Agents, Commands, and Hooks
 
@@ -168,7 +213,7 @@ Please utilise the plugin provided by Anthropic which assits with the creation o
 Create a directory under `skills/` with a `SKILL.md` containing YAML frontmatter and instructions:
 
 ```
-mkdir engineering/skills/my-skill
+mkdir -p engineering/engineering/skills/my-skill
 ```
 
 ```markdown

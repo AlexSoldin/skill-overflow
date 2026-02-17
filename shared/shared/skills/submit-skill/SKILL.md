@@ -61,14 +61,25 @@ Ask which department this skill belongs to. Present these options:
 
 - **shared** — Available to everyone
 - **engineering** — Engineering team
-- **marketing** — Marketing team
 - **research** — Research team
-- **sales** — Sales team
-- **customer-success** — Customer Success team
+
+Not all departments have plugins yet. If the user's department isn't listed, suggest "shared" as a starting point or offer to create a new plugin under their department.
 
 Accept a number or name. Default to "shared" if the user is unsure.
 
-#### 2. Skill name
+#### 2. Plugin
+
+After the department is selected, determine which plugin the skill belongs to.
+
+- If the department has only one plugin (e.g., shared → shared, engineering → engineering), auto-select it and tell the user.
+- If the department has multiple plugins (e.g., research → coolset-academy), list the available plugins and ask the user to pick one, or offer to create a new plugin.
+
+Current plugins by department:
+- **shared**: `shared`
+- **engineering**: `engineering`
+- **research**: `coolset-academy`
+
+#### 3. Skill name
 
 Ask for a skill name. Requirements:
 - Must be kebab-case: lowercase letters, numbers, and hyphens only (`[a-z0-9]+(-[a-z0-9]+)*`)
@@ -76,7 +87,7 @@ Ask for a skill name. Requirements:
 - Check that the skill directory does not already exist locally:
 
 ```bash
-ls <department>/skills/<skill-name>/SKILL.md 2>/dev/null
+ls <department>/<plugin>/skills/<skill-name>/SKILL.md 2>/dev/null
 ```
 
 - Check that no remote branch already exists:
@@ -87,14 +98,14 @@ git ls-remote --heads origin new-skill/<skill-name>
 
 If the skill already exists locally, tell the user and ask for a different name. If a remote branch exists, warn the user and offer to pick a different name or continue (which will create a fresh branch, overwriting the remote one).
 
-#### 3. Description
+#### 4. Description
 
 Ask for a one-line description of what the skill does. Requirements:
 - Must not be empty
 - Suggest keeping it under 150 characters
 - This becomes the `description` field in the SKILL.md frontmatter
 
-#### 4. Skill instructions
+#### 5. Skill instructions
 
 Ask the user to describe what the skill should do. They can be as detailed or brief as they like. Tell them:
 > Describe what this skill should do. You can write freely — I'll format it into clean markdown for you.
@@ -113,8 +124,9 @@ Show a summary box before making any changes:
 Skill summary
 ─────────────────────────────
 Department:    <department>
+Plugin:        <plugin>
 Skill name:    <skill-name>
-Location:      <department>/skills/<skill-name>/SKILL.md
+Location:      <department>/<plugin>/skills/<skill-name>/SKILL.md
 Branch:        new-skill/<skill-name>
 Description:   <description>
 ─────────────────────────────
@@ -146,7 +158,7 @@ git checkout -b new-skill/<skill-name> origin/main
 #### 2. Create the SKILL.md file
 
 ```bash
-mkdir -p <department>/skills/<skill-name>
+mkdir -p <department>/<plugin>/skills/<skill-name>
 ```
 
 Write the SKILL.md file with this structure:
@@ -167,7 +179,7 @@ The `name` field must exactly match the directory name. The title heading should
 #### 3. Stage the new file
 
 ```bash
-git add <department>/skills/<skill-name>/SKILL.md
+git add <department>/<plugin>/skills/<skill-name>/SKILL.md
 ```
 
 Only stage this one file. Never use `git add -A` or `git add .`.
@@ -176,7 +188,7 @@ Only stage this one file. Never use `git add -A` or `git add .`.
 
 ```bash
 git commit -m "$(cat <<'EOF'
-feat(<department>): add <skill-name> skill
+feat(<plugin>): add <skill-name> skill
 
 <description>
 EOF
@@ -195,10 +207,11 @@ If push fails with a permission error, stop and explain:
 #### 6. Create the pull request
 
 ```bash
-gh pr create --title "feat(<department>): add <skill-name> skill" --body "$(cat <<'EOF'
+gh pr create --title "feat(<plugin>): add <skill-name> skill" --body "$(cat <<'EOF'
 ## New skill: `<skill-name>`
 
 **Department:** <department>
+**Plugin:** <plugin>
 **Description:** <description>
 
 ## Skill instructions
@@ -236,7 +249,7 @@ Skill submitted!
 ─────────────────────────────
 PR:      <pr-url>
 Branch:  new-skill/<skill-name>
-File:    <department>/skills/<skill-name>/SKILL.md
+File:    <department>/<plugin>/skills/<skill-name>/SKILL.md
 ─────────────────────────────
 
 What happens next:

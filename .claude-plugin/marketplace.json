@@ -9,39 +9,24 @@
   "plugins": [
     {
       "name": "shared",
-      "source": "./shared",
+      "source": "./shared/shared",
       "description": "Shared skills for commit workflows, plugin updates, and common team tooling.",
-      "category": "productivity"
+      "category": "productivity",
+      "department": "shared"
     },
     {
       "name": "engineering",
-      "source": "./engineering",
+      "source": "./engineering/engineering",
       "description": "Engineering department skills and agents for development workflows.",
-      "category": "development"
+      "category": "development",
+      "department": "engineering"
     },
     {
-      "name": "marketing",
-      "source": "./marketing",
-      "description": "Marketing department skills and agents for content and campaign workflows.",
-      "category": "productivity"
-    },
-    {
-      "name": "research",
-      "source": "./research",
-      "description": "Research department skills and agents for analysis and discovery workflows.",
-      "category": "productivity"
-    },
-    {
-      "name": "sales",
-      "source": "./sales",
-      "description": "Sales department skills and agents for pipeline and outreach workflows.",
-      "category": "productivity"
-    },
-    {
-      "name": "customer-success",
-      "source": "./customer-success",
-      "description": "Customer success department skills and agents for support and retention workflows.",
-      "category": "productivity"
+      "name": "coolset-academy",
+      "source": "./research/coolset-academy",
+      "description": "Create, optimize, and review Coolset Academy articles with consistent voice, style, and AI discoverability.",
+      "category": "content",
+      "department": "research"
     }
   ]
 }

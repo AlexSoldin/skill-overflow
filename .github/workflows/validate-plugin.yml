@@ -3,24 +3,24 @@ name: Validate Plugin
 on:
   push:
     paths:
-      - "*/skills/**"
-      - "*/agents/**"
-      - "*/commands/**"
-      - "*/hooks/**"
-      - "*/.mcp.json"
+      - "**/skills/**"
+      - "**/agents/**"
+      - "**/commands/**"
+      - "**/hooks/**"
+      - "**/.mcp.json"
+      - "**/.claude-plugin/**"
       - "scripts/**"
       - ".claude-plugin/**"
-      - "*/.claude-plugin/**"
   pull_request:
     paths:
-      - "*/skills/**"
-      - "*/agents/**"
-      - "*/commands/**"
-      - "*/hooks/**"
-      - "*/.mcp.json"
+      - "**/skills/**"
+      - "**/agents/**"
+      - "**/commands/**"
+      - "**/hooks/**"
+      - "**/.mcp.json"
+      - "**/.claude-plugin/**"
       - "scripts/**"
       - ".claude-plugin/**"
-      - "*/.claude-plugin/**"
 
 jobs:
   validate:

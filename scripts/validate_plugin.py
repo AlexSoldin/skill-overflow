@@ -71,6 +71,14 @@ def validate_marketplace_json() -> list[dict]:
                 f"marketplace.json plugin '{plugin.get('name', '?')}' missing 'source'"
             )
 
+    # Check for duplicate plugin names
+    names = [p.get("name") for p in plugins if p.get("name")]
+    seen = set()
+    for name in names:
+        if name in seen:
+            error(f"marketplace.json has duplicate plugin name '{name}'")
+        seen.add(name)
+
     return plugins
 
 
