@@ -11,7 +11,7 @@ version: 1.0.0
 
 # Coolset Academy Writing
 
-Coolset is an Amsterdam-based platform that helps companies measure, analyze and reduce their emissions. Academy content targets EU-based professionals – from C-level executives to sustainability managers and consultants – who need practical guidance on regulations like CSRD, EUDR and the EU Taxonomy.
+Coolset is an Amsterdam-based platform that helps companies measure, analyze and reduce their emissions and comply with regulations such as CSRD,  EUDR, PPWR and EcoVadis. Academy content targets EU-based professionals – from C-level executives to sustainability managers and consultants – who need practical guidance on regulations like CSRD, EUDR and the EU Taxonomy.
 
 ## Coolset voice
 
