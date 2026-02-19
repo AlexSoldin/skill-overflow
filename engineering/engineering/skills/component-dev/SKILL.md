@@ -45,37 +45,68 @@ If no shadcn equivalent exists, implement from scratch following the patterns be
 
 ## Phase 4 — Fetch Library Documentation
 
-Use the context7 MCP tools to pull up-to-date docs for the libraries involved in this component before writing any code.
+Use the context7 MCP tools to pull up-to-date docs for the libraries involved in this component before writing any code. To minimise token usage: use hardcoded library IDs where known, batch `resolve-library-id` calls in parallel before querying, and keep each `query-docs` query narrowly focused on only the APIs this component will actually use. Do not call `query-docs` more than once per library.
 
-**Always fetch docs for:**
-- **React** — resolve with `mcp__plugin_context7_context7__resolve-library-id` (query: `"react"`), then query docs for the APIs in use (e.g. `"forwardRef"`, `"useRef"`, `"useState"`) — focus the topic on whichever hooks/APIs the component will need
-- **@testing-library/react** — resolve (query: `"@testing-library/react"`), then query docs for `"render screen userEvent"` to confirm current best-practice query patterns
+**Always fetch (use hardcoded IDs — no resolve needed):**
+- **React** — use library ID `/facebook/react`, query: describe only the hooks/APIs the component needs (e.g. `"forwardRef and useRef usage for a focusable component"`)
+- **@testing-library/react** — use library ID `/testing-library/react-testing-library`, query: `"render screen getByRole userEvent best practices"`
 
-**Fetch conditionally:**
-- If a **shadcn component** was found in Phase 3 — resolve `"shadcn/ui"` and query docs for the specific component (e.g. `"Dialog"`, `"Select"`)
-- If the shadcn component is built on a **Radix primitive** — resolve the relevant `"@radix-ui/react-*"` package and query docs for its props and composable parts (e.g. `"Trigger Content Overlay"`)
+**Fetch conditionally (resolve ID first, then query once):**
+- If a **shadcn component** was found in Phase 3 — resolve `"shadcn/ui"` and query docs for the specific component only (e.g. `"Toast component API and parts"`)
+- If the shadcn component is built on a **Radix primitive** — resolve the relevant `"@radix-ui/react-*"` package and query docs for its composable parts (e.g. `"Trigger Content Overlay props"`)
 - If the component will need **complex state** (e.g. date pickers, multi-select, comboboxes) — fetch docs for any relevant utility library already in the project's `package.json`
 
-Use the resolved library ID with `mcp__plugin_context7_context7__query-docs`. If context7 returns an error or cannot resolve a library, note it and continue — docs are informational, not blocking.
+If context7 returns an error or cannot resolve a library, note it and continue — docs are informational, not blocking.
 
-Briefly summarise what you found (key prop names, patterns, caveats) so the user can see what informed the implementation.
+Briefly summarise what you found (key prop names, patterns, caveats) — keep this summary concise (bullet points only).
 
-## Phase 5 — Plan the Component API
+## Phase 5 — Present Implementation Plan (REQUIRED USER APPROVAL)
 
-Before writing code, outline the TypeScript interface. Confirm with the user if any props are ambiguous:
+Before writing any code, present a full implementation plan to the user and **wait for explicit approval**. Do not proceed to Phase 6 until the user confirms. This is the moment to catch architectural decisions early.
 
+The plan must include all of the following sections:
+
+---
+
+**Implementation Plan: `ComponentName`**
+
+**Files to create:**
+- `src/components/ComponentName/ComponentName.tsx`
+- `src/components/ComponentName/ComponentName.css`
+- `src/components/ComponentName/ComponentName.stories.tsx`
+- `src/components/ComponentName/ComponentName.test.tsx`
+- `src/components/ComponentName/index.ts`
+
+**Base:** [shadcn `ComponentName` built on `@radix-ui/react-*`] OR [built from scratch]
+
+**Props interface:**
 ```ts
 export interface ComponentNameProps extends React.HTMLAttributes<HTMLElement> {
   variant?: 'primary' | 'secondary';   // from Figma variants
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
-  // callback props for all significant interactions
   onSomeAction?: (value: string) => void;
-  // escape hatches always present via ...rest spread
 }
 ```
 
-Rules:
+**Architecture decisions** (call out every significant structural choice explicitly, e.g.):
+- Will / will not implement a portal for rendering outside the DOM tree — reason: ...
+- Will / will not implement a queue/stack system for managing multiple instances — reason: ...
+- Will / will not use a React context provider — reason: ...
+- Will use [animation approach] for enter/exit transitions
+- Sub-components: [list any, e.g. `ToastProvider`, `ToastViewport`] or "none"
+
+**Figma variants covered:** [list all variant × state combinations from Phase 2]
+
+**Known gaps / open questions:** [anything from Figma that was ambiguous, or tokens that don't exist yet]
+
+---
+
+After presenting the plan, ask: *"Does this look right, or would you like to adjust anything before I start coding?"*
+
+**Only proceed to Phase 6 once the user explicitly approves.** If the user requests changes, revise the plan and ask again before writing any code.
+
+### Props interface rules
 - Extend the appropriate native HTML element attributes (`HTMLButtonElement`, `HTMLInputElement`, etc.) for full prop pass-through
 - Use `forwardRef` for any component that wraps a focusable/interactive element
 - Always set `displayName` on `forwardRef` components
@@ -303,7 +334,8 @@ Report any errors and fix them before declaring the component complete.
 - [ ] Component name confirmed (PascalCase, matches Figma)
 - [ ] shadcn/ui base checked
 - [ ] context7 docs fetched for React, testing-library, and any shadcn/Radix primitives in use
-- [ ] Props interface defined and reviewed
+- [ ] Implementation plan presented to user (props, architecture decisions, variants covered, open questions)
+- [ ] User has explicitly approved the plan before any code was written
 - [ ] `src/components/ComponentName/ComponentName.tsx` created
 - [ ] `src/components/ComponentName/ComponentName.css` created (CSS variables only)
 - [ ] `src/components/ComponentName/ComponentName.stories.tsx` created (with Figma URL)
