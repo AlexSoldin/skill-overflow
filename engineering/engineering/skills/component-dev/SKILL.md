@@ -1,5 +1,5 @@
 ---
-name: new-component
+name: component-dev
 description: This skill should be used when the user asks to "build a new component", "create a component", "implement a component from Figma", "add a component to cs-ui", "scaffold a component", or wants to create a new React component in the cs-ui library. Guides the full workflow from Figma design inspection through to complete implementation including the component file, CSS, Storybook story, and test file.
 version: 1.0.0
 ---

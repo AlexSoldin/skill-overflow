@@ -23,6 +23,7 @@ skill-overflow/
       skills/
         commit-push-pr/       # Commit, push, and create a PR
         sentry-triage/        # Triage and fix Sentry errors
+        component-dev/        # Build new cs-ui components from Figma
       agents/
       commands/
       hooks/
@@ -120,6 +121,7 @@ Invoke skills using namespaced slash commands:
 /shared:submit-skill                    # Submit a new skill via pull request
 /engineering:commit-push-pr             # Commit, push, and create a PR
 /engineering:sentry-triage              # Triage and fix Sentry errors
+/engineering:component-dev              # Build new cs-ui components from Figma
 /coolset-academy:academy-writing        # Write Coolset Academy content
 /coolset-academy:write-article [topic]  # Write an article from a brief
 /coolset-academy:optimize-article       # Optimize article for AI discoverability
