@@ -79,3 +79,5 @@ Check for:
 ## Delivery
 
 Present the review as a scorecard with the six categories. For each category scored "Needs work" or "Fail," provide specific examples from the text and concrete suggestions for fixing them. End with a prioritized list of the top 3–5 changes that would most improve the article.
+
+This command produces feedback only — it does not make any changes to content. If the user asks to apply review suggestions to Webflow CMS, follow the Webflow interaction rules in the academy-writing skill: capture the before state, confirm the exact changes with the user, apply only after explicit approval, and save the after state locally (or commit to GitHub if available).

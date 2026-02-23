@@ -54,3 +54,5 @@ Find any theoretical or abstract passages. Suggest or write specific, practical 
 ## Delivery
 
 Present a summary of all changes made, organized by category. Save the optimized article as a new file (append "-optimized" to the filename). Do not overwrite the original.
+
+If the user asks to push the optimized content to Webflow CMS, follow the Webflow interaction rules in the academy-writing skill: capture the before state, confirm the exact changes with the user, apply only after explicit approval, and save the after state locally (or commit to GitHub if available).

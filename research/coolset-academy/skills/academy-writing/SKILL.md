@@ -6,7 +6,7 @@ description: >
   "write about sustainability", "create Coolset content", or needs
   guidance on Coolset's voice, tone, style rules, or article structure
   for any sustainability or compliance topic.
-version: 1.0.0
+version: 1.2.0
 ---
 
 # Coolset Academy Writing
@@ -50,3 +50,37 @@ For detailed guidance, load the following as needed:
 - **`references/style-guide.md`** — Complete language rules, do's/don'ts, punctuation, formatting
 - **`references/content-examples.md`** — Example introductions, sections, bullet point usage, FAQ format
 - **`references/ai-optimization.md`** — Rules for making content LLM-discoverable (H2s as questions, answer-first, FAQ structure)
+
+## Webflow interaction rules
+
+These rules apply to all commands in this plugin: write-article, optimize-article, content-brief, and review-article.
+
+### 1. Never rewrite or publish without explicit user confirmation
+
+Before making any change to Webflow CMS content — whether that is updating a CMS item, editing page content, or publishing — stop and ask the user for explicit confirmation. Describe exactly what will be changed (which item, which fields, what the new content will be) and wait for an affirmative response before proceeding. This applies to every individual write, update, and publish action.
+
+Do not batch multiple changes into a single confirmation. Each distinct content change should be confirmed separately so the user has full visibility.
+
+### 2. Capture before-and-after snapshots for every change
+
+Before making any Webflow CMS change, save the current state of the content being modified to a local file. After the change is applied, save the new state as well. This creates a clear audit trail.
+
+Use the following file naming convention and save to the working directory:
+
+```
+webflow-changes/
+  YYYY-MM-DD_HH-MM_[slug-or-item-name]/
+    before.md     ← current content fetched from Webflow before changes
+    after.md      ← new content after changes are applied
+    changeset.md  ← summary: what changed, why, and user confirmation reference
+```
+
+If a GitHub repository is available, commit these snapshots so the team can review the history of all Webflow interactions. Use descriptive commit messages (e.g., "Update CSRD article intro – confirmed by user").
+
+### 3. Default to local file delivery
+
+When writing new content (articles, briefs, optimized drafts), always save the output as a local file first. Only push content to Webflow CMS if the user explicitly asks for it — and even then, follow rules 1 and 2 above.
+
+### 4. Never publish a Webflow site without explicit confirmation
+
+Publishing makes changes live. Always confirm with the user before calling any site publish action, and state clearly which domains will be affected.

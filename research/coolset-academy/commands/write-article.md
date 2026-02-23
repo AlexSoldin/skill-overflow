@@ -86,4 +86,4 @@ Before delivering, verify every item:
 - Real-world examples included
 - Tone is professional, smart, conversational – not academic or salesy
 
-Save the final article as a markdown file.
+Save the final article as a markdown file. If the user asks to push the content to Webflow CMS, follow the Webflow interaction rules in the academy-writing skill: capture the before state, confirm the exact changes with the user, apply only after explicit approval, and save the after state locally (or commit to GitHub if available).
