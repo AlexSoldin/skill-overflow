@@ -1,7 +1,13 @@
 ---
 description: Generate colocated unit tests for a TypeScript or React source file. Analyzes the file type (component, hook, or utility), reads project config for import aliases and test setup, then creates or merges a .test.tsx/.test.ts file using Vitest and @testing-library/react. Runs the generated tests to validate them.
 argument-hint: "<path/to/source-file.tsx>"
-allowed-tools: Read, Write, Edit, Grep, Glob, Bash
+allowed-tools:
+  - Read
+  - Write
+  - Edit
+  - Grep
+  - Glob
+  - Bash
 ---
 
 # Generate Unit Tests
