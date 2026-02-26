@@ -1,0 +1,5 @@
+{
+  "name": "fe-unit-test-generator",
+  "version": "1.0.0",
+  "description": "Generate comprehensive unit tests for React/TypeScript components, hooks, and utilities using Vitest and @testing-library/react."
+}
