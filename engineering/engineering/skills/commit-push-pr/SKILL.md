@@ -88,12 +88,83 @@ EOF
 )"
 ```
 
-### 6. Report completion
+### 6. Suggest and assign reviewers
+
+After the PR is created, suggest reviewers based on the repository name.
+
+**Determine repo type from the GitHub remote origin:**
+
+| Type | Repositories |
+|------|-------------|
+| **BE** | `cs-api`, `data-room-api`, `cloud-functions`, `cs-pulse`, `cs-scranton`, `cs-common`, `terraform` |
+| **FE** | `coolset-react-app`, `data-room-package`, `cs-ui`, `data-room-react-app` |
+
+**Reviewer pool (exclude the PR author):**
+
+| GitHub Username | Name                  | Type |
+|-----------------|-----------------------|------|
+| `machadojoy`    | Joy Machado           | BE   |
+| `Sigularusrex`  | David Sigley          | BE   |
+| `AlexSoldin`    | Alex Soldin           | BE   |
+| `adapass182`    | Adam Passingham       | FE   |
+| `vvruspat`      | Alexander Kolesov     | FE   |
+
+**Steps:**
+
+1. Get the repo name from `gh repo view --json name -q .name`
+2. Get the current GitHub user with `gh api user -q .login` to exclude them from reviewers
+3. Match the repo name to the table above to determine BE or FE
+4. If the repo doesn't match either list, ask the user whether it's BE or FE
+5. Present the suggested reviewers to the user for confirmation
+6. After the user confirms, assign them:
+
+```bash
+gh pr edit <pr-number> --add-reviewer <username1>,<username2>
+```
+
+### 7. Post review request to Slack
+
+After assigning reviewers, post a message to the **#dev** Slack channel (`C04HM8SMMLJ`) requesting a review.
+
+**Steps:**
+
+1. Get the Linear issue ID from the branch name or PR body (e.g., `CS-1234`)
+2. If a Linear issue is associated, fetch the issue details using the Linear MCP tool (`get_issue`) to get the title and URL
+3. Send a Slack message using `mcp__claude_ai_Slack__slack_send_message` with:
+   - **channel_id**: `C04HM8SMMLJ`
+   - Tag the assigned reviewers using their Slack IDs
+   - Include the Linear issue title, Linear URL, and PR URL
+
+**Slack user ID mapping:**
+
+| GitHub Username | Slack ID      |
+|-----------------|---------------|
+| `adapass182`    | `U05QRRHVCQM` |
+| `AlexSoldin`    | `U04S7M5A2PM` |
+| `machadojoy`    | `U0A09M3LLBH` |
+| `Sigularusrex`  | `U0617K4NGCU` |
+| `vvruspat`      | `U0A0UMK1JQ4` |
+
+**Message format:**
+
+```
+Hey <@SLACK_ID1> <@SLACK_ID2> — could you review this PR? 🙏
+
+*CS-XXXX — <Linear issue title>*
+PR: <github PR URL>
+Linear: <linear issue URL>
+```
+
+If no Linear issue is found, omit the Linear line and just include the PR URL and a summary of the changes.
+
+### 8. Report completion
 
 After creating the PR, provide:
 - The PR URL
 - A brief summary of what was committed
 - The branch name used
+- The assigned reviewers
+- Confirmation that the Slack message was sent
 
 ## Safety rules
 
