@@ -47,6 +47,7 @@ Departments are organizational folders that contain one or more plugins. Empty d
 | `shared` | shared | productivity | Shared skills for commit workflows, plugin updates, and common team tooling. |
 | `engineering` | engineering | development | Engineering department skills and agents for development workflows. |
 | `coolset-academy` | research | content | Create, optimize, and review Coolset Academy articles with consistent voice, style, and AI discoverability. |
+| `fe-unit-test-generator` | engineering | development | Generate comprehensive unit tests for React/TypeScript components, hooks, and utilities using Vitest and @testing-library/react. |
 
 ## Installation
 
@@ -57,6 +58,7 @@ Add the marketplace, then install the plugins relevant to your team:
 /plugin install skill-overflow@shared
 /plugin install skill-overflow@engineering
 /plugin install skill-overflow@coolset-academy
+/plugin install skill-overflow@fe-unit-test-generator
 ```
 
 ## Team-Wide Setup
@@ -126,6 +128,7 @@ Invoke skills using namespaced slash commands:
 /coolset-academy:write-article [topic]  # Write an article from a brief
 /coolset-academy:optimize-article       # Optimize article for AI discoverability
 /coolset-academy:review-article         # Review a draft against guidelines
+/fe-unit-test-generator:generate [file] # Generate unit tests for a source file
 ```
 
 ## Versioning

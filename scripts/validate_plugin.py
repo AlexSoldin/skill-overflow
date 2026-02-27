@@ -169,27 +169,40 @@ def validate_hooks_json(plugin_name: str, plugin_dir: Path) -> None:
             if "matcher" not in hook_entry:
                 error(f"Plugin '{plugin_name}': {label} missing 'matcher'")
 
-            # type is required and must be known
-            hook_type = hook_entry.get("type")
-            if not hook_type:
-                error(f"Plugin '{plugin_name}': {label} missing 'type'")
-            elif hook_type not in KNOWN_HOOK_TYPES:
-                error(
-                    f"Plugin '{plugin_name}': {label} has unknown type '{hook_type}'. "
-                    f"Expected one of: {', '.join(sorted(KNOWN_HOOK_TYPES))}"
-                )
+            # hooks array is required and contains the actual hook definitions
+            inner_hooks = hook_entry.get("hooks")
+            if not isinstance(inner_hooks, list) or not inner_hooks:
+                error(f"Plugin '{plugin_name}': {label} missing 'hooks' array")
+                continue
 
-            # Validate the matching content field exists
-            if hook_type == "prompt" and not hook_entry.get("prompt"):
-                error(
-                    f"Plugin '{plugin_name}': {label} has type 'prompt' "
-                    f"but missing 'prompt' field"
-                )
-            elif hook_type == "command" and not hook_entry.get("command"):
-                error(
-                    f"Plugin '{plugin_name}': {label} has type 'command' "
-                    f"but missing 'command' field"
-                )
+            for j, hook_def in enumerate(inner_hooks):
+                inner_label = f"{label} hook {j}"
+
+                if not isinstance(hook_def, dict):
+                    error(f"Plugin '{plugin_name}': {inner_label} must be an object")
+                    continue
+
+                # type is required and must be known
+                hook_type = hook_def.get("type")
+                if not hook_type:
+                    error(f"Plugin '{plugin_name}': {inner_label} missing 'type'")
+                elif hook_type not in KNOWN_HOOK_TYPES:
+                    error(
+                        f"Plugin '{plugin_name}': {inner_label} has unknown type '{hook_type}'. "
+                        f"Expected one of: {', '.join(sorted(KNOWN_HOOK_TYPES))}"
+                    )
+
+                # Validate the matching content field exists
+                if hook_type == "prompt" and not hook_def.get("prompt"):
+                    error(
+                        f"Plugin '{plugin_name}': {inner_label} has type 'prompt' "
+                        f"but missing 'prompt' field"
+                    )
+                elif hook_type == "command" and not hook_def.get("command"):
+                    error(
+                        f"Plugin '{plugin_name}': {inner_label} has type 'command' "
+                        f"but missing 'command' field"
+                    )
 
 
 def validate_commands(plugin_name: str, plugin_dir: Path) -> None:
