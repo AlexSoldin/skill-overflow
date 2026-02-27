@@ -171,7 +171,6 @@ When you add or change skills, agents, commands, or hooks in a plugin, bump the 
      "source": "./research/my-plugin",
      "description": "My plugin description.",
      "category": "productivity",
-     "department": "research"
    }
    ```
 
@@ -203,7 +202,6 @@ When you add or change skills, agents, commands, or hooks in a plugin, bump the 
      "source": "./new-department/my-plugin",
      "description": "My department skills and agents.",
      "category": "productivity",
-     "department": "new-department"
    }
    ```
 

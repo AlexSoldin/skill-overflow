@@ -53,8 +53,7 @@
       "name": "fe-unit-test-generator",
       "source": "./engineering/fe-unit-test-generator",
       "description": "Generate comprehensive unit tests for React/TypeScript components, hooks, and utilities using Vitest and @testing-library/react.",
-      "category": "development",
-      "department": "engineering"
+      "category": "development"
     }
   ]
 }
