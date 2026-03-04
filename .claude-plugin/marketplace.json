@@ -54,6 +54,12 @@
       "source": "./engineering/fe-unit-test-generator",
       "description": "Generate comprehensive unit tests for React/TypeScript components, hooks, and utilities using Vitest and @testing-library/react.",
       "category": "development"
+    },
+    {
+      "name": "coolset-planner",
+      "source": "./engineering/coolset-planner",
+      "description": "Planning workflow: fetch Linear tickets, explore codebase, generate implementation plans with mermaid diagrams.",
+      "category": "engineering"
     }
   ]
 }

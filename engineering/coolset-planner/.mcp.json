@@ -1,0 +1,6 @@
+{
+  "claude_ai_Linear": {
+    "type": "http",
+    "url": "https://mcp.linear.app/mcp"
+  }
+}
