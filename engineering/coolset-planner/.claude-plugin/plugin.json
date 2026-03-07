@@ -1,6 +1,6 @@
 {
   "name": "coolset-planner",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Planning workflow for Coolset: fetch Linear tickets, explore the codebase across repos, and generate structured implementation plans with architecture diagrams and AI instructions.",
   "author": { "name": "Coolset Engineering" }
 }
