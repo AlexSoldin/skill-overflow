@@ -27,6 +27,13 @@ skill-overflow/
       agents/
       commands/
       hooks/
+    coolset-planner/              # Coolset planning plugin
+      .claude-plugin/plugin.json
+      .mcp.json               # MCP servers (Linear, Serena)
+      skills/
+        plan/                 # Plan implementation for a Linear ticket
+      agents/
+        planner.md            # Codebase explorer with semantic navigation
   research/
     coolset-academy/          # Coolset Academy content writing plugin
       .claude-plugin/plugin.json
@@ -48,6 +55,7 @@ Departments are organizational folders that contain one or more plugins. Empty d
 | `engineering` | engineering | development | Engineering department skills and agents for development workflows. |
 | `coolset-academy` | research | content | Create, optimize, and review Coolset Academy articles with consistent voice, style, and AI discoverability. |
 | `fe-unit-test-generator` | engineering | development | Generate comprehensive unit tests for React/TypeScript components, hooks, and utilities using Vitest and @testing-library/react. |
+| `coolset-planner` | engineering | engineering | Planning workflow: fetch Linear tickets, explore codebase with semantic code analysis, and generate structured implementation plans with architecture diagrams. |
 
 ## Installation
 
@@ -59,6 +67,7 @@ Add the marketplace, then install the plugins relevant to your team:
 /plugin install skill-overflow@engineering
 /plugin install skill-overflow@coolset-academy
 /plugin install skill-overflow@fe-unit-test-generator
+/plugin install skill-overflow@coolset-planner
 ```
 
 ## Team-Wide Setup
@@ -92,6 +101,8 @@ Each plugin can include an `.mcp.json` file to register MCP (Model Context Proto
 |--------|--------|------|-------------|
 | `shared` | n8n | stdio | Workflow automation via n8n |
 | `engineering` | Linear | http | Issue tracking and project management |
+| `coolset-planner` | Linear | http | Issue tracking and project management |
+| `coolset-planner` | Serena | stdio | Semantic code analysis via language server protocol |
 
 **Environment variables:** Some MCP servers require environment variables. Set these in your shell or `.env` file:
 
@@ -129,6 +140,7 @@ Invoke skills using namespaced slash commands:
 /coolset-academy:optimize-article       # Optimize article for AI discoverability
 /coolset-academy:review-article         # Review a draft against guidelines
 /fe-unit-test-generator:generate [file] # Generate unit tests for a source file
+/coolset-planner:plan [CS-XXXX]        # Plan implementation for a Linear ticket
 ```
 
 ## Versioning
