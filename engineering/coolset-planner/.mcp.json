@@ -2,5 +2,16 @@
   "claude_ai_Linear": {
     "type": "http",
     "url": "https://mcp.linear.app/mcp"
+  },
+  "serena": {
+    "command": "uvx",
+    "args": [
+      "--from", "git+https://github.com/oraios/serena",
+      "serena", "start-mcp-server",
+      "--project-from-cwd",
+      "--context", "claude-code",
+      "--mode", "planning",
+      "--mode", "no-memories"
+    ]
   }
 }
