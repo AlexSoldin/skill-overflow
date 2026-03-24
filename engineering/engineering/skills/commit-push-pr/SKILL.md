@@ -124,7 +124,7 @@ gh pr edit <pr-number> --add-reviewer <username1>,<username2>
 
 ### 7. Post review request to Slack
 
-After assigning reviewers, post a message to the **#dev** Slack channel (`C04HM8SMMLJ`) requesting a review.
+After assigning reviewers, post a message to the **#team-engineering** Slack channel (`C04HM8SMMLJ`) requesting a review.
 
 **Steps:**
 
@@ -165,6 +165,14 @@ After creating the PR, provide:
 - The branch name used
 - The assigned reviewers
 - Confirmation that the Slack message was sent
+
+### 9. Offer deployment
+
+After reporting completion, ask the user:
+
+> "Deploy to staging?"
+
+If the user says yes, invoke the `/deploy` skill to trigger the staging deployment flow.
 
 ## Safety rules
 
