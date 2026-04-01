@@ -5,6 +5,10 @@ This is the template structure the `/plan` skill writes to Linear issue descript
 ## Template
 
 ```markdown
+## Original Description
+
+[Preserve the original ticket description exactly as the author wrote it. This section must always remain at the top of the ticket and must never be edited, summarized, or reworded. It serves as the original prompt/context for the work.]
+
 ## Background
 
 [2-3 paragraphs: product context, user need, business value. Written for humans — PMs, designers, and engineers should all understand this section.]
@@ -113,4 +117,5 @@ sequenceDiagram
 - The `Updated` timestamp and `Repos: repo@branch` help detect staleness
 - File paths should be exact (verified during exploration), not guessed
 - Mermaid diagrams should be valid and renderable in Linear
-- When re-running `/plan` on an existing ticket, replace the entire description (don't append)
+- The **Original Description** section must always remain at the top, unmodified — it is the author's original context
+- When re-running `/plan` on an existing ticket, replace everything below the Original Description section (don't append)
