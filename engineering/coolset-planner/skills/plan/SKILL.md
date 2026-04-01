@@ -148,8 +148,9 @@ Present the generated plan to the user for review before writing to Linear.
 
 After user approval:
 
-1. **Update the issue description** via `mcp__claude_ai_Linear__save_issue` with the full plan (both sections)
-2. **Add a comment** via `mcp__claude_ai_Linear__create_comment` summarizing:
+1. **Preserve the original description**: Before writing, capture the existing ticket description (the author's original context). This becomes the `## Original Description` section and must remain at the very top of the ticket, unmodified.
+2. **Update the issue description** via `mcp__claude_ai_Linear__save_issue` with: the Original Description section first, then the full plan (both human and AI sections) below it.
+3. **Add a comment** via `mcp__claude_ai_Linear__save_comment` summarizing:
    - What repos are affected
    - Key architectural decisions
    - Any risks flagged
@@ -172,6 +173,6 @@ Ask the user before creating sub-issues — they may prefer to manage the breakd
 
 - **File paths over code snippets**: Include exact paths found during exploration, not copied code. Paths go stale slower than code.
 - **Timestamp the AI section**: Include `Updated: YYYY-MM-DD` and `Repos: repo@branch` in the separator comment so staleness is visible.
-- **Re-running on existing tickets**: Replace the entire description rather than appending. The plan should always reflect the current state.
+- **Re-running on existing tickets**: Preserve the `## Original Description` section at the top, then replace everything below it. The plan should always reflect the current state, but the original context must never be modified.
 - **Mermaid validation**: Keep diagrams simple and syntactically valid. Linear renders mermaid natively.
 - **Be opinionated**: If you see a clearly better approach during exploration, recommend it — but explain the tradeoff.
