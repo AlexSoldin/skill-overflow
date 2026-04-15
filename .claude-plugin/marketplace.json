@@ -8,46 +8,10 @@
   },
   "plugins": [
     {
-      "name": "shared",
-      "source": "./shared/shared",
-      "description": "Shared skills for commit workflows, plugin updates, and common team tooling.",
-      "category": "productivity"
-    },
-    {
       "name": "engineering",
       "source": "./engineering/engineering",
       "description": "Engineering department skills and agents for development workflows.",
       "category": "development"
-    },
-    {
-      "name": "coolset-academy",
-      "source": "./research/coolset-academy",
-      "description": "Create, optimize, and review Coolset Academy articles with consistent voice, style, and AI discoverability.",
-      "category": "content"
-    },
-    {
-      "name": "research",
-      "source": "./research/research",
-      "description": "Research department skills and agents.",
-      "category": "productivity"
-    },
-    {
-      "name": "customer-success",
-      "source": "./customer-success/customer-success",
-      "description": "Customer Success department skills and agents.",
-      "category": "productivity"
-    },
-    {
-      "name": "sales",
-      "source": "./sales/sales",
-      "description": "Sales department skills and agents.",
-      "category": "productivity"
-    },
-    {
-      "name": "marketing",
-      "source": "./marketing/marketing",
-      "description": "Marketing department skills and agents.",
-      "category": "productivity"
     },
     {
       "name": "fe-unit-test-generator",
