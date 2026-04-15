@@ -1,6 +1,6 @@
 ---
 name: ticket
-description: Execute a Linear ticket end-to-end — read ticket, create worktree, implement, test, lint, commit, PR, assign reviewers, and post to Slack.
+description: Execute a Linear ticket end-to-end — read ticket, create worktree, implement, test, lint, commit, and create a PR.
 args: issue_id
 ---
 
@@ -79,8 +79,3 @@ Invoke the `/commit-push-pr` skill to:
 - Push and create PR
 - Detect and label migrations on the Linear ticket
 
-### 7. Request review
-
-Invoke the `/request-review` skill to:
-- Assign reviewers based on the repo type
-- Post a review request to #team-engineering on Slack
