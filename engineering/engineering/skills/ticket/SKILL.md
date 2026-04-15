@@ -1,6 +1,6 @@
 ---
 name: ticket
-description: Execute a Linear ticket end-to-end — read ticket, create branch, implement, test, lint, commit, PR, assign reviewers, post to Slack, and offer deployment.
+description: Execute a Linear ticket end-to-end — read ticket, create worktree, implement, test, lint, commit, and create a PR.
 args: issue_id
 ---
 
@@ -33,15 +33,21 @@ Extract:
 
 Present a brief summary to the user and confirm the approach before proceeding.
 
-### 2. Create a branch
+### 2. Create a worktree
+
+Create an isolated worktree using Worktrunk so work can happen in parallel without affecting the main workspace:
 
 ```bash
-git checkout main
-git pull origin main
-git checkout -b <issue_id>/<description-slug>
+wt switch --create <issue_id>/<description-slug>
 ```
 
-Branch name format: `CS-1234/short-description-slug` (lowercase, hyphens).
+Branch name format: `CS-1234/short-description-slug` (lowercase, hyphens). The worktree is named the same as the branch.
+
+All subsequent steps (implementation, tests, lint, commit) happen inside this worktree. Once the PR is merged, clean up with:
+
+```bash
+wt remove <issue_id>/<description-slug>
+```
 
 ### 3. Implement changes
 
@@ -66,11 +72,10 @@ ruff check . --fix --extend-select=I
 ruff format .
 ```
 
-### 6. Commit, push, PR, reviewers, Slack, and deploy
+### 6. Commit, push, and create PR
 
-Invoke the `/commit-push-pr` skill to handle the rest of the workflow:
+Invoke the `/commit-push-pr` skill to:
 - Commit with conventional commit format referencing the ticket
 - Push and create PR
-- Suggest and assign reviewers
-- Post review request to `#team-engineering` on Slack
-- Offer deployment to staging
+- Detect and label migrations on the Linear ticket
+
