@@ -158,6 +158,23 @@ After user approval:
 
 If the ticket didn't exist yet (description-only input), create it first with `mcp__claude_ai_Linear__save_issue`.
 
+4. **Apply labels** to the ticket based on context gathered in Step 2:
+
+   | Source | Label | Logic |
+   |--------|-------|-------|
+   | Step 2 Q2 (work type) | `task` or `bug` | Feature, Refactor, or Infrastructure → `task`; Bug fix → `bug` |
+   | Step 2 Q1 (repos) | `BE`, `FE`, or `fullstack` | All selected repos are backend/shared → `BE`; all frontend → `FE`; mix of both → `fullstack` |
+   | Step 2 Q1 (repos) | Repo name (e.g. `cs-api`) | The primary repo — highest impact from the Affected Repos table, or the only repo if single-repo work |
+
+   To determine stack, cross-reference selected repos against the repo registry:
+   - **Backend/Shared**: `cs-api`, `data-room-api`, `cs-pulse`, `cs-scranton`, `cs-eunice`, `cs-common`, `cloud-functions`, `terraform`, `service-orchestration`
+   - **Frontend**: `coolset-react-app`, `data-room-react-app`, `cs-ui`, `data-room-package`
+
+   Steps:
+   1. Check which labels already exist with `mcp__claude_ai_Linear__list_issue_labels`
+   2. Create any missing labels with `mcp__claude_ai_Linear__create_issue_label`
+   3. Apply all labels to the ticket via `mcp__claude_ai_Linear__save_issue` (using the `labelIds` field)
+
 ## Step 6: Sub-Issues (Multi-Repo Work)
 
 If the work spans 2+ repos, offer to create sub-issues:

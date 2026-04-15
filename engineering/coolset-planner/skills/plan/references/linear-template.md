@@ -71,6 +71,12 @@ sequenceDiagram
 - [ ] New tchu-tchu event needs subscriber in cs-scranton
 - [ ] Feature flag needed for gradual rollout
 
+## Labels
+
+Applied: `task`, `BE`, `cs-api`
+
+[Auto-applied based on work type, stack, and primary repo from planning context.]
+
 ---
 <!-- AI Context | Updated: YYYY-MM-DD | Repos: cs-api@main, coolset-react-app@main -->
 
