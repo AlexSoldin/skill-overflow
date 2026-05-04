@@ -52,6 +52,7 @@ Suggest reviewers based on the repository name.
 | `AlexSoldin`    | Alex Soldin           | BE   |
 | `adapass182`    | Adam Passingham       | FE   |
 | `vvruspat`      | Alexander Kolesov     | FE   |
+| `markjaniczak`  | Mark Janiczak         | FE   |
 
 **Steps:**
 
@@ -92,6 +93,7 @@ Post a message to the **#team-engineering** Slack channel requesting a review.
 | `machadojoy`    | `U0A09M3LLBH` |
 | `Sigularusrex`  | `U0617K4NGCU` |
 | `vvruspat`      | `U0A0UMK1JQ4` |
+| `markjaniczak`  | `U0ASN5VS9C6` |
 
 **Send the message** using `mcp__claude_ai_Slack__slack_send_message` with **channel_id** `C04HM8SMMLJ`.
 
