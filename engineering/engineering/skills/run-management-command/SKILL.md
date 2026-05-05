@@ -24,14 +24,22 @@ Ask the user:
 
 ### 2. Resolve environment config
 
-| Environment | GCP project | Region | Cloud Run service |
-|-------------|-------------|--------|-------------------|
-| staging | `coolset-staging` | `europe-west3` | `pulse-app` |
-| production | `coolset-production` | `europe-west3` | `pulse-app` |
+| Environment | GCP project | Region |
+|-------------|-------------|--------|
+| staging | `coolset-staging` | `europe-west3` |
+| production | `coolset-production` | `europe-west3` |
+
+Then list the available Cloud Run services for the chosen environment so the user can pick one:
+
+```bash
+gcloud run services list --project <project> --region <region> --format "value(metadata.name)"
+```
+
+Present the list to the user and ask which service to target.
 
 ### 3. Fetch the current image and service configuration
 
-Pull the latest deployed image and configuration from the running Cloud Run service so the job runs the same code:
+Pull the latest deployed image and configuration from the chosen Cloud Run service so the job runs the same code:
 
 ```bash
 gcloud run services describe <service> \
