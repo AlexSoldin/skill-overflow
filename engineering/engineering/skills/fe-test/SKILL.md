@@ -1,5 +1,5 @@
 ---
-name: qa-tester
+name: fe-test
 description: >
   Full QA workflow for testing a Linear ticket: reads the ticket, writes a structured test plan,
   posts it as a Linear comment, runs Playwright smoke tests against a staging URL, then posts a

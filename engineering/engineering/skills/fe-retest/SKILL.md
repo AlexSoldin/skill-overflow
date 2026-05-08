@@ -1,5 +1,5 @@
 ---
-name: qa-retest
+name: fe-retest
 description: >
   Targeted retest workflow for previously failed QA scenarios on a Linear ticket. Reads the
   most recent test report comment from the ticket, extracts every ❌ FAIL scenario with its
@@ -7,7 +7,7 @@ description: >
   posts a focused retest comment to Linear. Use whenever the user says "retest the failed
   points", "test only what failed", "can you retest the failures", "check if the bug is fixed",
   "retest on the new build", or provides a new staging URL after a previous test run. This skill
-  is essential — invoke it before doing any retest work. Do NOT use the full qa-tester skill for
+  is essential — invoke it before doing any retest work. Do NOT use the full fe-test skill for
   retests — this skill is purpose-built for targeted retesting and avoids redundant re-running
   of already-passing scenarios.
 ---
@@ -29,7 +29,7 @@ Scan for a comment that looks like a test report — it will contain:
 
 If there are multiple test report comments, use the **most recent** one.
 
-If no test report comment is found, stop and tell the user — this skill requires a prior report to work from. Suggest they run the full `qa-tester` skill first.
+If no test report comment is found, stop and tell the user — this skill requires a prior report to work from. Suggest they run the full `fe-test` skill first.
 
 ---
 
