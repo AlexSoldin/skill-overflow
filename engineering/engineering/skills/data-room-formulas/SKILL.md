@@ -37,13 +37,13 @@ A formula payload looks like:
 
 ### Field id convention
 
-Every placeholder you write must resolve to an existing field id whose data point value is numeric. In practice that means one of these prefixes:
+Every placeholder you write must resolve to an existing field id whose data point value is numeric. In practice that means a block whose id begins with one of these prefixes:
 
-- `number__…` — a Number block (raw user input). **Preferred.**
-- `formula__…` — another Formula block (computed value).
-- `radio_button__…` — a Radio Button block, **only if** every option for that block has a numeric `value`. Allowed because option values are controlled by Coolset staff, but the frontend autocomplete will not surface these — you must type the placeholder manually. If any option has a non-numeric value, evaluation fails at runtime with `non-numeric value: <value>`.
+- `number_…` — a Number block (raw user input). **Preferred.**
+- `formula_…` — another Formula block (computed value).
+- `radio_button_…` — a Radio Button block, **only if** every option for that block has a numeric `value`. Allowed because option values are controlled by Coolset staff, but the frontend autocomplete will not surface these — you must type the placeholder manually. If any option has a non-numeric value, evaluation fails at runtime with `non-numeric value: <value>`.
 
-Field ids are stable, lowercase, snake_case identifiers (typically `<prefix>__<descriptor>` with a double underscore between prefix and body, e.g. `number__emissions_scope_1`). They're stored as `CharField(max_length=125, unique=True)` per survey. Don't invent ids — reference ones that already exist in the same survey.
+Field ids are stable, lowercase, snake_case identifiers stored as `CharField(max_length=125, unique=True)` per survey. The separator between prefix and descriptor varies — both single-underscore (`formula_dma_test_energy_act_negative1`) and double-underscore (`number__emissions_scope_1`) ids exist in production. Use whatever the existing block uses; don't invent ids or rewrite their separators — reference ones that already exist in the same survey.
 
 ## Formula syntax rules (SymPy + Coolset constraints)
 
