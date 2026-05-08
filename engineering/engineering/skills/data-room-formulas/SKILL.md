@@ -24,7 +24,7 @@ Data room surveys support **Formula blocks** whose `expression` is evaluated ser
 - **Frontend authoring** — `data-room-react-app/src/modules/Expressions/components/`.
   - `ExpressionInput.tsx` (v1, MUI `TextField`) and `ExpressionInputV2.tsx` (v2, CodeMirror) — both produce the same `{ expression: string, fields: string[] }` payload.
   - `fields` is derived from `expression` by regex matching `/{([^}]+)}/g` and trimming.
-  - Autocomplete only suggests existing blocks of type `Number` or `Formula`.
+  - Autocomplete only suggests existing blocks of type `Number` or `Formula`. `RadioButton` blocks with numeric option values are also valid references but must be typed manually (see below).
 
 A formula payload looks like:
 
@@ -37,12 +37,13 @@ A formula payload looks like:
 
 ### Field id convention
 
-Only blocks of type `Number` or `Formula` can be referenced inside an expression, so every placeholder you write must resolve to an existing field id with one of these prefixes:
+Every placeholder you write must resolve to an existing field id whose data point value is numeric. In practice that means a block whose id begins with one of these prefixes:
 
-- `number_…` — a Number block (raw user input).
+- `number_…` — a Number block (raw user input). **Preferred.**
 - `formula_…` — another Formula block (computed value).
+- `radio_button_…` — a Radio Button block, **only if** every option for that block has a numeric `value`. Allowed because option values are controlled by Coolset staff, but the frontend autocomplete will not surface these — you must type the placeholder manually. If any option has a non-numeric value, evaluation fails at runtime with `non-numeric value: <value>`.
 
-Field ids are stable, lowercase, snake_case identifiers (typically `<prefix>__<descriptor>` with a double underscore between prefix and body, e.g. `number__emissions_scope_1`). They're stored as `CharField(max_length=125, unique=True)` per survey. Don't invent ids — reference ones that already exist in the same survey.
+Field ids are stable, lowercase, snake_case identifiers stored as `CharField(max_length=125, unique=True)` per survey. The separator between prefix and descriptor varies — both single-underscore (`formula_dma_test_energy_act_negative1`) and double-underscore (`number__emissions_scope_1`) ids exist in production. Use whatever the existing block uses; don't invent ids or rewrite their separators — reference ones that already exist in the same survey.
 
 ## Formula syntax rules (SymPy + Coolset constraints)
 
@@ -92,7 +93,7 @@ When producing or reviewing a formula:
 - [ ] Function names are SymPy built-ins (`sqrt`, `log`, `exp`, `Min`, `Max`, `Abs`, ...), not `math.*` or `Math.*`.
 - [ ] All numeric literals are well-formed (no trailing `.`, no leading zeros).
 - [ ] Parentheses and braces are balanced.
-- [ ] Referenced blocks are of type `Number` or `Formula` and exist in the same survey.
+- [ ] Referenced blocks exist in the same survey and resolve to a numeric value at runtime — `Number`, `Formula`, or a `RadioButton` whose options are all numeric. Prefer `Number`; only reach for `RadioButton` when the survey already models the input that way.
 - [ ] No accidental circular references between formulas.
 
 ## Worked examples
@@ -155,7 +156,8 @@ Using SymPy built-in functions (square root, exponent, absolute value):
 | `{number__a} + 012` | `["number__a"]` | `Formula <id> contains invalid integer format: 012` | Leading-zero integer. Use `12`. |
 | `math.sqrt({number__a})` | `["number__a"]` | `Error evaluating formula <id>: ...` | `math.sqrt` is unknown to SymPy. Use bare `sqrt(...)`. |
 | `{number__a} / 0` | `["number__a"]` | `Error evaluating formula <id>: ...` | Division by zero at `evalf()` time. |
-| `{short_text__name} + {number__a}` | `["short_text__name", "number__a"]` | Rejected at authoring (autocomplete won't surface non-numeric blocks) or at runtime | Only `Number` and `Formula` blocks may be referenced. |
+| `{short_text__name} + {number__a}` | `["short_text__name", "number__a"]` | `Failed to evaluate formula ... non-numeric value: ...` | Referenced block resolves to a non-numeric value. Only blocks whose data point is numeric (`Number`, `Formula`, numeric-only `RadioButton`) can be referenced. |
+| `{radio_button__tier} + {number__a}` where `radio_button__tier` has a `"high"` option | `["radio_button__tier", "number__a"]` | `Failed to evaluate formula ... non-numeric value: high` | Radio button is referenceable only if **every** option value is numeric. A single non-numeric option breaks evaluation when that option is selected. |
 
 ## Diagnosing a failing formula
 
@@ -167,6 +169,7 @@ If the backend rejects a formula, the error usually maps to one of:
 | `Formula <id> contains invalid float format: 5.` | Trailing-dot literal — fix to `5` or `5.0`. |
 | `Formula <id> contains invalid integer format: 012` | Leading-zero integer — drop the leading zeros. |
 | `Error evaluating formula <id>: ...` | SymPy-level failure — usually `^` used as exponent, an unknown function name, division by zero, or a non-numeric result from a missing function. |
+| `Failed to evaluate formula ... non-numeric value: <value>` | A referenced field's data point isn't numeric. Most often: a `RadioButton` reference where the selected option's value is a string. Either remove the reference or update the radio block so all options have numeric values. |
 
 ## Reference docs to share with an AI agent
 
