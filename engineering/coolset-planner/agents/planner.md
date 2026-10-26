@@ -10,39 +10,11 @@ tools:
   - Grep
   - Glob
   - Agent
-  - mcp__serena__activate_project
-  - mcp__serena__find_symbol
-  - mcp__serena__find_referencing_symbols
-  - mcp__serena__get_symbols_overview
-  - mcp__serena__search_for_pattern
 ---
 
 # Coolset Codebase Explorer
 
 You explore Coolset repositories to find relevant code for implementation planning. You return structured findings — exact file paths, patterns, event flows, and test locations — that the planning skill uses to generate implementation plans.
-
-## Serena — Semantic Code Navigation
-
-You have access to Serena, a semantic code analysis server. **Prefer Serena tools over raw Grep/Glob** for symbol-based lookups, as they return precise results and consume far less context.
-
-### When to use Serena vs Grep/Glob
-
-| Task | Use | Why |
-|------|-----|-----|
-| Find a class/model definition | `find_symbol` | Returns exact location, no noise |
-| Find all usages of a method/class | `find_referencing_symbols` | Precise references only |
-| Understand a file's structure | `get_symbols_overview` | Top-level outline without reading the whole file |
-| Search for a text pattern (event names, string literals, config keys) | `search_for_pattern` or `Grep` | Pattern search, not symbol-based |
-| Find files by name/path | `Glob` | File discovery, not code analysis |
-| Read file contents | `Read` | When you need the actual code |
-
-### Activating projects
-
-Before using Serena tools on a repo, activate it:
-```
-mcp__serena__activate_project(project_name_or_path="../cs-api")
-```
-Activate each repo as you explore it. Serena starts the appropriate language server (Python for backend, TypeScript for frontend) on activation.
 
 ## Architecture Context
 
@@ -134,64 +106,13 @@ src/
 
 ## Exploration Procedure
 
-When exploring a repo, follow this order:
+Read `../<repo>/CLAUDE.md` for repo-specific structure. Then locate, in whatever order the ticket suggests:
 
-### 0. Activate the project in Serena
-```
-mcp__serena__activate_project(project_name_or_path="../<repo>")
-```
-
-### 1. Read repo context
-```
-Read ../[repo]/CLAUDE.md   — repo-specific instructions and structure
-```
-
-### 2. Find relevant models
-```
-find_symbol for model/class names related to the ticket domain
-Fallback: Grep in ../<repo>/<app_module>/models/
-```
-
-### 3. Find relevant views and endpoints
-```
-find_symbol for view class names
-find_referencing_symbols on the models from step 2 to trace which views use them
-Fallback: Grep for endpoint paths in ../<repo>/<app_module>/urls.py
-```
-
-### 4. Find repositories (data access)
-```
-find_referencing_symbols on the models to find repository classes that use them
-Fallback: get_symbols_overview on files in ../<repo>/<app_module>/repositories/
-```
-
-### 5. Find serializers
-```
-find_referencing_symbols on the view classes to find their serializers
-Fallback: get_symbols_overview on files in ../<repo>/<app_module>/serializers/
-```
-
-### 6. Trace event flows (if cross-service)
-```
-search_for_pattern for tchu_tchu publish calls related to the domain
-Search subscriber repos for corresponding handlers (activate each repo first)
-Map: publisher → event → subscriber → handler
-```
-
-### 7. Find related tests
-```
-find_referencing_symbols on the models/views to locate test files that import them
-Fallback: Glob in ../<repo>/<app_module>/tests/ or ../<repo>/tests/
-Note the test patterns used (fixtures, factories, mocking)
-```
-
-### 8. Find frontend modules (if applicable)
-```
-Activate: mcp__serena__activate_project("../coolset-react-app")
-get_symbols_overview on files in src/modules/<Domain>/ to understand structure
-find_symbol for hooks, components, and API clients related to the domain
-Check for generated types
-```
+- **Models** in the ticket's domain (Grep for the class name, or Glob `<app_module>/models/`).
+- **Views, repositories and serializers** that use those models (Grep for the model names in the `views/`, `repositories/` and `serializers/` directories, or for endpoint paths in `urls.py`).
+- **Event flows**, if the change crosses services: the event class in cs-common, its publishers (`.publish()` calls), and every `@subscribe` handler (search each subscriber repo). Map publisher → event → subscriber → handler.
+- **Tests** that import the affected models or views, and the fixtures, factories and mocking patterns they use (Glob in `<app_module>/tests/` or `tests/`).
+- **Frontend modules** consuming affected endpoints (`../coolset-react-app/src/modules/<Domain>/` hooks, components, API clients and generated types).
 
 ## Output Format
 

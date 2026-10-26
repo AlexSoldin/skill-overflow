@@ -29,7 +29,7 @@ skill-overflow/
       hooks/
     coolset-planner/              # Coolset planning plugin
       .claude-plugin/plugin.json
-      .mcp.json               # MCP servers (Linear, Serena)
+      .mcp.json               # MCP servers (Linear)
       skills/
         plan/                 # Plan implementation for a Linear ticket
       agents/
@@ -102,7 +102,6 @@ Each plugin can include an `.mcp.json` file to register MCP (Model Context Proto
 | `shared` | n8n | stdio | Workflow automation via n8n |
 | `engineering` | Linear | http | Issue tracking and project management |
 | `coolset-planner` | Linear | http | Issue tracking and project management |
-| `coolset-planner` | Serena | stdio | Semantic code analysis via language server protocol |
 
 **Environment variables:** Some MCP servers require environment variables. Set these in your shell or `.env` file:
 
